@@ -1,0 +1,8 @@
+.DS_Store
+node_modules/
+*.sublime*
+*.log
+.idea/
+commonjs/
+es2015/
+coverage/

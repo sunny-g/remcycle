@@ -1,0 +1,88 @@
+{
+  "name": "remcycle",
+  "version": "0.0.0",
+  "description": "",
+  "author": "Sunny G <sunny.gonna@gmail.com> (http://blog.sunnyg.io)",
+  "homepage": "https://github.com/sunny-g/remcycle",
+  "repository": "https://github.com/sunny-g/remcycle",
+  "bugs": "https://github.com/sunny-g/remcycle/issues",
+  "license": "ISC",
+  "main": "commonjs/remcycle.js",
+  "module": "es2015/index.js",
+  "types": "es2015/index.d.ts",
+  "files": [
+    "commonjs",
+    "es2015",
+    "src/"
+  ],
+  "keywords": [
+    "cycle",
+    "react",
+    "redux",
+    "mostjs"
+  ],
+  "scripts": {
+    "build": "webpack",
+    "build:watch": "npm run build -- --watch",
+    "prepublish": "tsc && npm run build",
+    "test": "jest --no-cache",
+    "test:watch": "npm run test -- --watch"
+  },
+  "babel": {
+    "env": {
+      "test": {
+        "plugins": [
+          "transform-es2015-modules-commonjs"
+        ]
+      }
+    }
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ],
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/test/*.test.(ts|js)"
+    ],
+    "testResultsProcessor": "<rootDir>/node_modules/ts-jest/coverageprocessor.js",
+    "transform": {
+      "\\.(ts|js)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    }
+  },
+  "dependencies": {
+    "@cycle/isolate": "^2.1.0",
+    "@cycle/most-run": "^7.1.0",
+    "@most/hold": "^2.0.0",
+    "@motorcycle/collection": "^1.1.0",
+    "@sunny-g/cycle-react-driver": "^0.3.0",
+    "@sunny-g/cycle-redux-driver": "^0.1.9",
+    "@sunny-g/cycle-utils": "^0.1.1",
+    "@types/node": "^6.0.69",
+    "@types/ramda": "0.0.6",
+    "@types/react": "^15.0.21",
+    "@types/react-dom": "^0.14.23",
+    "immutable": "^3.8.1",
+    "most": "^1.2.2",
+    "ramda": "^0.23.0",
+    "react": "^15.5.4",
+    "react-dom": "^15.5.4"
+  },
+  "devDependencies": {
+    "@types/jest": "^19.2.2",
+    "babel-core": "^6.23.1",
+    "babel-loader": "^6.4.0",
+    "babel-preset-es2015": "^6.22.0",
+    "babel-preset-stage-0": "^6.22.0",
+    "jest": "^19.0.2",
+    "jest-cli": "^19.0.2",
+    "ts-jest": "^19.0.1",
+    "ts-loader": "^2.0.1",
+    "typescript": "^2.3.0",
+    "webpack": "^2.3.2"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

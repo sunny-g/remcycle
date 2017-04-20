@@ -1,0 +1,27 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "module": "es2015",
+    "moduleResolution": "node",
+    "target": "es5",
+    "declaration": true,
+    "sourceMap": true,
+    "outDir": "es2015",
+    "lib": [
+      "dom",
+      "es5",
+      "es2015"
+    ],
+
+    "allowSyntheticDefaultImports": true,
+    "alwaysStrict": true
+  },
+
+  "exclude": [
+    "node_modules",
+    "commonjs",
+    "es2015",
+    "example",
+    "test"
+  ]
+}
