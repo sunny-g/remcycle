@@ -1,5 +1,5 @@
 # remcycle
-*a [Cycle.js](https://cycle.js.org)-based micro-framework and set of higher-order-components built on [cycle-react-driver](https://github.com/sunny-g/cycle-react-driver), [cycle-redux-driver](https://github.com/sunny-g/cycle-redux-driver), and [most](https://github.com/cujojs/most)*
+*a [Cycle.js](https://cycle.js.org)-based component factory and set of higher-order-components built on [cycle-react-driver](https://github.com/sunny-g/cycle-react-driver), [cycle-redux-driver](https://github.com/sunny-g/cycle-redux-driver), and [most](https://github.com/cujojs/most)*
 
 <!--## why-->
 
