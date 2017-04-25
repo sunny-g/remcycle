@@ -54,6 +54,11 @@
     },
     "transformIgnorePatterns": [
       "/node_modules/(?!(@sunny-g/cycle-utils/es2015))/"
+    ],
+    "unmockedModulePathPatterns": [
+      "react",
+      "react-dom",
+      "react-dom/test-utils"
     ]
   },
   "dependencies": {
