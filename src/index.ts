@@ -1,9 +1,9 @@
-import mapActions from './hoc/mapActions';
+import addActionHandlers from './hoc/addActionHandlers';
 import mapProps from './hoc/mapProps';
 
 import createComponent from './createComponent';
 
-export { mapActions };
+export { addActionHandlers };
 export { mapProps };
 
 export default createComponent;
