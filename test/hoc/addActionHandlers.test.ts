@@ -42,7 +42,7 @@ describe('addActionHandlers HOC', () => {
         props: props
           .tap(({ onClick }) => setTimeout(_ => {
             onClick(false)
-          }, 100))
+          }, 0))
       };
     }
 
