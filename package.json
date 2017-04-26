@@ -74,7 +74,8 @@
     "immutable": "^3.8.1",
     "most": "^1.2.2",
     "react": "^15.5.4",
-    "react-dom": "^15.5.4"
+    "react-dom": "^15.5.4",
+    "shallow-equals": "^1.0.0"
   },
   "devDependencies": {
     "@types/jest": "^19.2.2",

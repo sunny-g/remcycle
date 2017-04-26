@@ -1,3 +1,7 @@
+const shallowEquals = require('shallow-equals');
+
+export { shallowEquals };
+
 export const throwIfMissing = () => {
   throw new Error(`Missing parameter`);
 }
