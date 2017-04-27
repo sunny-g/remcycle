@@ -18,7 +18,7 @@ export const mapObj = valueKeyMapper => obj =>
 export const compose = (...fns) => arg => fns.reverse().reduce((val, fn) => fn(val), arg);
 export const pipe = (...fns) => arg => fns.reduce((val, fn) => fn(val), arg);
 
-export const omit = keys => obj =>
+export const omit = (keys, obj) =>
   Object
     .keys(obj)
     .reduce((newObj, key) => {
@@ -28,7 +28,7 @@ export const omit = keys => obj =>
       return { ...newObj, [key]: obj[key] };
     }, {});
 
-export const pick = keys => obj =>
+export const pick = (keys, obj) =>
   keys
     .reduce((newObj, key) => ({
       ...newObj,

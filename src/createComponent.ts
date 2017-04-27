@@ -67,7 +67,7 @@ const baseChildrenHOC = _keys => BaseComponent => _sources => {
  *  - sources
  *    - performs manipulation of sources passed in from the parent components
  */
-const createComponent: CreateComponent = (options = {}) => {
+const createComponent: CreateComponent = options => {
   const {
     main,
     handlers = {},
