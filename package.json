@@ -25,7 +25,7 @@
   "scripts": {
     "build": "webpack",
     "build:watch": "npm run build -- --watch",
-    "prepublish": "tsc && npm run build -- -p",
+    "prepublish": "npm test && tsc && npm run build -- -p",
     "test": "jest",
     "test:watch": "npm run test -- --watch"
   },
