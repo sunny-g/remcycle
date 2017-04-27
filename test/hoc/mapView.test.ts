@@ -17,7 +17,7 @@ describe('mapView HOC', () => {
       createElement('div', null, vtree)
     );
 
-    const props = { name: 'World! '};
+    const props = { name: 'World!'};
     const sources = { props: of(props) };
     const sinks = hoc(HelloComponent)(sources);
 
