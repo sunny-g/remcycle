@@ -7,8 +7,8 @@ export const throwIfMissing = () => {
 }
 
 // alt for ramda/src/mapObjIndexed
-export const mapObj = (valueKeyMapper) =>
-  obj => Object
+export const mapObj = valueKeyMapper => obj =>
+  Object
     .keys(obj)
     .reduce((newObj, key) => ({
       ...newObj,
@@ -18,8 +18,8 @@ export const mapObj = (valueKeyMapper) =>
 export const compose = (...fns) => arg => fns.reverse().reduce((val, fn) => fn(val), arg);
 export const pipe = (...fns) => arg => fns.reduce((val, fn) => fn(val), arg);
 
-export const omit = keys =>
-  obj => Object
+export const omit = keys => obj =>
+  Object
     .keys(obj)
     .reduce((newObj, key) => {
       if (keys.includes(key)) {
@@ -28,8 +28,8 @@ export const omit = keys =>
       return { ...newObj, [key]: obj[key] };
     }, {});
 
-export const pick = keys =>
-  obj => keys
+export const pick = keys => obj =>
+  keys
     .reduce((newObj, key) => ({
       ...newObj,
       [key]: newObj[key],
