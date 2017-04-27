@@ -3,6 +3,7 @@ import isolate from './hoc/isolate';
 import logProps from './hoc/logProps';
 import mapActions from './hoc/mapActions';
 import mapProps from './hoc/mapProps';
+import withActions from './hoc/withActions';
 import withProps from './hoc/withProps';
 
 import mergeReduxSinks from './mergeReduxSinks';
@@ -13,6 +14,7 @@ export { isolate };
 export { logProps };
 export { mapActions };
 export { mapProps };
+export { withActions };
 export { withProps };
 
 export { mergeReduxSinks };
