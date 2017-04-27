@@ -6,7 +6,7 @@ import mapProps from './hoc/mapProps';
 import withActions from './hoc/withActions';
 import withProps from './hoc/withProps';
 
-import mergeReduxSinks from './mergeReduxSinks';
+import mergeReduxSinks, { reduxSinkCombiner } from './mergeReduxSinks';
 import createComponent from './createComponent';
 
 export { addActionHandlers };
@@ -17,5 +17,6 @@ export { mapProps };
 export { withActions };
 export { withProps };
 
+export { reduxSinkCombiner };
 export { mergeReduxSinks };
 export default createComponent;
