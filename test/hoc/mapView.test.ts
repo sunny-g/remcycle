@@ -27,8 +27,9 @@ describe('mapView HOC', () => {
         const childVtree = vtree.props.children;
         expect(childVtree.type).toBe(Hello);
         expect(childVtree.props).toMatchObject(props);
+        done();
       })
-      .observe(done);
+      .observe(() => {});
   });
 
 });

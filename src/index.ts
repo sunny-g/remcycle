@@ -3,6 +3,7 @@ import isolate from './hoc/isolate';
 import logProps from './hoc/logProps';
 import mapActions from './hoc/mapActions';
 import mapProps from './hoc/mapProps';
+import mapView from './hoc/mapView';
 import withActions from './hoc/withActions';
 import withProps from './hoc/withProps';
 
@@ -14,6 +15,7 @@ export { isolate };
 export { logProps };
 export { mapActions };
 export { mapProps };
+export { mapView };
 export { withActions };
 export { withProps };
 
