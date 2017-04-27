@@ -1,6 +1,6 @@
 {
   "name": "remcycle",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "a Cycle.js-based component factory and set of higher-order-components built on cycle-react-driver, cycle-redux-driver, and most",
   "author": "Sunny G <sunny.gonna@gmail.com> (http://blog.sunnyg.io)",
   "homepage": "https://github.com/sunny-g/remcycle",
@@ -13,7 +13,8 @@
   "files": [
     "commonjs",
     "es2015",
-    "src/"
+    "src",
+    "test"
   ],
   "keywords": [
     "cycle",
