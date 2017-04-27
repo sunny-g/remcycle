@@ -5,6 +5,7 @@ import mapActions from './hoc/mapActions';
 import mapProps from './hoc/mapProps';
 import mapView from './hoc/mapView';
 import withActions from './hoc/withActions';
+import withActionStreams from './hoc/withActionStreams';
 import withProps from './hoc/withProps';
 
 import mergeReduxSinks, { reduxSinkCombiner } from './mergeReduxSinks';
@@ -17,6 +18,7 @@ export { mapActions };
 export { mapProps };
 export { mapView };
 export { withActions };
+export { withActionStreams };
 export { withProps };
 
 export { reduxSinkCombiner };
