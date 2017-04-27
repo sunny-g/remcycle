@@ -60,6 +60,44 @@ describe('mapActions HOC', () => {
       .observe(done);
   });
 
+  test('should provide latest props to mapper', done => {
+    function main() {
+      return {
+        REDUX: of({
+          [TYPE1]: of(type1(1))
+            .delay(2)
+            .startWith(type1(0))
+        })
+      }
+    }
+
+    const Main = mapActions({
+      [TYPE1]: (action, { type1 }) => ({ ...action, payload: action.payload + type1 }),
+    })(main);
+
+    const sinks = Main({
+      props: of({ type1: 1 })
+        .delay(1)
+        .startWith({ type1: 0 })
+    });
+
+    const results = [];
+    sinks.REDUX
+      .flatMap(action$s => action$s[TYPE1])
+      .tap(action => results.push(action))
+      .tap(_ => {
+        if (results.length < 2) { return; }
+
+        const action1 = results[0];
+        const action2 = results[1];
+
+        expect(action1.payload).toBe(0);
+        expect(action2.payload).toBe(2);
+        done();
+      })
+      .observe(() => {}));
+  });
+
   // TODO: use cycle/time to avoid running the actual delay
   test('should not emit if mapper returns undefined', done => {
     function main() {
@@ -87,8 +125,11 @@ describe('mapActions HOC', () => {
 
     sinks.REDUX
       .flatMap(action$s => action$s[TYPE1])
-      .tap(action => expect(action.payload).toBe(true))
-      .observe(done);
+      .tap(action => {
+        expect(action.payload).toBe(true);
+        done();
+      })
+      .observe(() => {}));
   });
 
 });

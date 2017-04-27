@@ -15,15 +15,13 @@ export interface MapActions {
 const mapActions: MapActions = mappers => mapSinksWithSources(
   'REDUX', 'props', (REDUX = of({}), propsSource = of({})) => ({
     REDUX: REDUX
-      .sample((action$s, props) => {
-        return mapObj((action$, actionType) => mappers.hasOwnProperty(actionType) ?
-          action$
-            .map(action => mappers[actionType](action, props))
-            .filter(action => action !== undefined)
-            .multicast() :
-          action$
-        )(action$s);
-      }, REDUX, propsSource),
+      .map(mapObj((action$, actionType) => !mappers.hasOwnProperty(actionType) ?
+        action$ :
+        action$
+          .sample(mappers[actionType], action$, propsSource)
+          .filter(action => action !== undefined)
+          .multicast()
+      )),
   }),
 );
 
