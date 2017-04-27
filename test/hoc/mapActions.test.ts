@@ -21,13 +21,14 @@ function main() {
 
 describe('mapActions HOC', () => {
 
-  test('should emit actions transformed by specifc mapper', done => {
+  test('should emit actions transformed by specific mapper', done => {
     const Main = mapActions({
       [TYPE1]: action => ({ ...action, payload: false }),
     })(main);
 
     const sinks = Main();
-    const TYPE1$ = sinks.REDUX
+
+    sinks.REDUX
       .flatMap(action$s => action$s[TYPE1])
       .tap(action => expect(action.payload).toBe(false))
       .observe(done);
@@ -39,7 +40,8 @@ describe('mapActions HOC', () => {
     })(main);
 
     const sinks = Main();
-    const TYPE2$ = sinks.REDUX
+
+    sinks.REDUX
       .flatMap(action$s => action$s[TYPE2])
       .tap(action => expect(action.payload).toBe(true))
       .observe(done);
@@ -51,7 +53,8 @@ describe('mapActions HOC', () => {
     })(main);
 
     const sinks = Main({ props: of({ type1: true }) });
-    const TYPE1$ = sinks.REDUX
+
+    sinks.REDUX
       .flatMap(action$s => action$s[TYPE1])
       .tap(action => expect(action.payload).toBe(true))
       .observe(done);
@@ -61,7 +64,7 @@ describe('mapActions HOC', () => {
   test('should not emit if mapper returns undefined', done => {
     function main() {
       const TYPE1$ = of(type1(true))
-        .delay(100)
+        .delay(1)
         .startWith(type1(false));
 
       return {
@@ -81,7 +84,8 @@ describe('mapActions HOC', () => {
     })(main);
 
     const sinks = Main({ props: of({ type1: true }) });
-    const TYPE1$ = sinks.REDUX
+
+    sinks.REDUX
       .flatMap(action$s => action$s[TYPE1])
       .tap(action => expect(action.payload).toBe(true))
       .observe(done);

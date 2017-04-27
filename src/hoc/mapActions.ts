@@ -19,7 +19,8 @@ const mapActions: MapActions = mappers => mapSinksWithSources(
         return mapObj((action$, actionType) => mappers.hasOwnProperty(actionType) ?
           action$
             .map(action => mappers[actionType](action, props))
-            .filter(action => action !== undefined) :
+            .filter(action => action !== undefined)
+            .multicast() :
           action$
         )(action$s);
       }, REDUX, propsSource),
