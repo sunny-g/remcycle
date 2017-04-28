@@ -32,5 +32,5 @@ export const pick = (keys, obj) =>
   keys
     .reduce((newObj, key) => ({
       ...newObj,
-      [key]: newObj[key],
+      [key]: obj[key],
     }), {});
