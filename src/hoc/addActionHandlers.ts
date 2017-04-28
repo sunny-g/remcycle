@@ -43,11 +43,12 @@ const addActionHandlers: AddActionHandlers = (handlers = {}) => mapSourcesAndSin
             .sample((eventArgs, props) => (
               actionDescription['actionCreator'](props, ...([].concat(eventArgs)))
             ), event$, propsSource)
-            .filter(action => action !== undefined);
+            .filter(action => action !== undefined)
+            .multicast();
 
         return {
           ...action$s,
-          [actionDescription['type']]: action$.multicast(),
+          [actionDescription['type']]: action$,
         };
       }, {});
 
