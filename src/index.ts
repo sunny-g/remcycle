@@ -1,3 +1,17 @@
+import addActionHandlers from './hoc/addActionHandlers';
+import isolate from './hoc/isolate';
+import logProps from './hoc/logProps';
+import mapActions from './hoc/mapActions';
+import mapProps from './hoc/mapProps';
+import mapPropsStream from './hoc/mapPropsStream';
+import mapView from './hoc/mapView';
+import withActions from './hoc/withActions';
+import withActionStreams from './hoc/withActionStreams';
+import withProps from './hoc/withProps';
+
+import mergeReduxSinks, { reduxSinkCombiner } from './mergeReduxSinks';
+import createComponent from './createComponent';
+
 export {
   compose,
   mapObj,
@@ -7,19 +21,16 @@ export {
   shallowEquals,
 } from './util';
 
-export { addActionHandlers } from './hoc/addActionHandlers';
-export { isolate } from './hoc/isolate';
-export { logProps } from './hoc/logProps';
-export { mapActions } from './hoc/mapActions';
-export { mapProps } from './hoc/mapProps';
-export { mapPropsStream } from './hoc/mapPropsStream';
-export { mapView } from './hoc/mapView';
-export { withActions } from './hoc/withActions';
-export { withActionStreams } from './hoc/withActionStreams';
-export { withProps } from './hoc/withProps';
-
-import mergeReduxSinks, { reduxSinkCombiner } from './mergeReduxSinks';
-import createComponent from './createComponent';
+export { addActionHandlers };
+export { isolate };
+export { logProps };
+export { mapActions };
+export { mapProps };
+export { mapPropsStream };
+export { mapView };
+export { withActions };
+export { withActionStreams };
+export { withProps };
 
 export { reduxSinkCombiner };
 export { mergeReduxSinks };
