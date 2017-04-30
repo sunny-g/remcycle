@@ -26,10 +26,8 @@ const withActionStreams: WithActionStreams = mappers => mapSinksWithSources(
 
             return {
               ...newAction$s,
-              ...mapObj(actionStreamCreator => {
-                return actionStreamCreator(action$, sources)
-                  .filter(action => action !== undefined);
-              })(mapperObj),
+              ...mapObj(actionStreamCreator => actionStreamCreator(action$, sources))
+                (mapperObj),
             };
           }, {}),
       })),

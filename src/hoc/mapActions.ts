@@ -15,9 +15,9 @@ export interface MapActions {
 const mapActions: MapActions = mappers => mapSinksWithSources(
   'REDUX', 'props', (REDUX = of({}), propsSource = of({})) => ({
     REDUX: REDUX
-      .map(mapObj((action$, actionType) => !mappers.hasOwnProperty(actionType) ?
-        action$ :
-        action$
+      .map(mapObj((action$, actionType) => !mappers.hasOwnProperty(actionType)
+        ? action$
+        : action$
           .sample(mappers[actionType], action$, propsSource)
           .filter(action => action !== undefined)
           .multicast()
