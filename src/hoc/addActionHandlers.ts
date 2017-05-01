@@ -1,11 +1,12 @@
 import { from, of } from 'most';
+import { hold } from '@most/hold';
 import mapSourcesAndSinks from '@sunny-g/cycle-utils/es2015/mapSourcesAndSinks';
 import { HigherOrderComponent } from '@sunny-g/cycle-utils/es2015/interfaces';
 import { mapObj } from '../util'
 
 export interface ActionDescription {
-  hold: boolean,
   type: string;
+  hold?: boolean;
   actionCreator?: (props: any, ...events: any[]) => any;
   actionCreatorStream?: (sources: any, event$: any) => any;
 }
@@ -19,7 +20,7 @@ export interface AddActionHandlers {
 }
 
 const addActionHandlers: AddActionHandlers = (handlers = {}) => mapSourcesAndSinks(
-  '*', ({ REACT, props: propsSource = of({}) }) => {
+  [ 'REACT', 'props' ], (REACT, propsSource = of({})) => {
     const createReactHandlers = mapObj((actionDescription, handlerName) =>
       REACT.handler(handlerName, actionDescription['hold'])
     );
@@ -33,6 +34,7 @@ const addActionHandlers: AddActionHandlers = (handlers = {}) => mapSourcesAndSin
   },
   'REDUX', (REDUX, sources) => {
     const { REACT, props: propsSource = of({}) } = sources;
+
     const actionStreams = Object
       .keys(handlers)
       .reduce((action$s, handlerName) => {
@@ -50,14 +52,13 @@ const addActionHandlers: AddActionHandlers = (handlers = {}) => mapSourcesAndSin
           : event$
             .sample((eventArgs, props) =>
               actionCreator(props, ...([].concat(eventArgs))),
-            event$, propsSource)
+              event$, propsSource
+            )
             .filter(action => action !== undefined)
+            .thru(action$ => shouldHold ? action$.thru(hold) : action$)
             .multicast();
 
-        return {
-          ...action$s,
-          [actionType]: action$,
-        };
+        return { ...action$s, [actionType]: action$ };
       }, {});
 
     return { REDUX: of(actionStreams) };

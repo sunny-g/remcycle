@@ -68,7 +68,7 @@
     "@motorcycle/collection": "^1.1.0",
     "@sunny-g/cycle-react-driver": "^0.4.5",
     "@sunny-g/cycle-redux-driver": "^0.1.9",
-    "@sunny-g/cycle-utils": "^0.1.3",
+    "@sunny-g/cycle-utils": "^0.2.0",
     "@types/node": "^6.0.69",
     "@types/react": "^15.0.21",
     "@types/react-dom": "^0.14.23",
