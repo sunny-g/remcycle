@@ -77,7 +77,7 @@ describe('addActionHandlers HOC', () => {
         type: TYPE1,
         actionCreatorStream: (sources, event$) => {
           return event$
-            .sample((props) => type1(props.text), sources.props, event$);
+            .sample((_, props) => type1(props.text), event$, sources.props);
         },
       }
     })(main);

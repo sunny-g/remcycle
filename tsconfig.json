@@ -21,7 +21,7 @@
     "node_modules",
     "commonjs",
     "es2015",
-    "example",
+    "exampleAPIs",
     "test"
   ]
 }

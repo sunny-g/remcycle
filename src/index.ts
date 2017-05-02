@@ -10,7 +10,7 @@ import withActions from './hoc/withActions';
 import withActionStreams from './hoc/withActionStreams';
 import withProps from './hoc/withProps';
 
-import mergeReduxSinks, { reduxSinkCombiner } from './mergeReduxSinks';
+import reduxSinksCombiner from './reduxSinksCombiner';
 import createComponent from './createComponent';
 
 export {
@@ -34,6 +34,5 @@ export { withActions };
 export { withActionStreams };
 export { withProps };
 
-export { reduxSinkCombiner };
-export { mergeReduxSinks };
+export { reduxSinksCombiner };
 export default createComponent;

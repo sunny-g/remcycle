@@ -4,7 +4,7 @@ import { of } from 'most';
 import React from 'react';
 import { ReactSource } from '@sunny-g/cycle-react-driver/es2015';
 import { fromReactDOMComponent } from '@sunny-g/cycle-react-driver/es2015/dom';
-import mergeReduxSinks from '../src/mergeReduxSinks';
+import reduxSinksCombiner from '../src/reduxSinksCombiner';
 import addActionHandlers from '../src/hoc/addActionHandlers';
 
 const makeActionCreator = type => payload => ({ type, payload, error: false, meta: {} });
@@ -18,7 +18,7 @@ function main({ props }) {
   return { props };
 }
 
-describe('mergeReduxSinks', () => {
+describe('reduxSinksCombiner', () => {
 
   test('should merge two REDUX sinks with exclusive REDUX sink streams', done => {
     const Main1 = addActionHandlers({
@@ -39,9 +39,9 @@ describe('mergeReduxSinks', () => {
     const sinks1 = Main1(sources);
     const sinks2 = Main2(sources);
 
-    const combinedSinks = mergeReduxSinks(sinks1, sinks2);
+    const combinedReduxSink$ = reduxSinksCombiner(sinks1.REDUX, sinks2.REDUX);
 
-    combinedSinks.REDUX
+    combinedReduxSink$
       .tap(action$s => expect(action$s).toHaveProperty(TYPE1))
       .tap(action$s => expect(action$s[TYPE1].source.constructor.name).toBe('MulticastSource'))
       .tap(action$s => expect(action$s).toHaveProperty(TYPE2))
@@ -72,9 +72,9 @@ describe('mergeReduxSinks', () => {
     const sinks1 = Main1(sources);
     const sinks2 = Main2(sources);
 
-    const combinedSinks = mergeReduxSinks(sinks1, sinks2);
+    const combinedReduxSink$ = reduxSinksCombiner(sinks1.REDUX, sinks2.REDUX);
 
-    combinedSinks.REDUX
+    combinedReduxSink$
       .tap(action$s => expect(action$s).toHaveProperty(TYPE1))
       .tap(action$s => expect(action$s[TYPE1].source.constructor.name).toBe('Merge'))
       .tap(action$s => expect(action$s).toHaveProperty(TYPE2))
