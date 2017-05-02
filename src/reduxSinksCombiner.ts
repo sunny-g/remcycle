@@ -1,3 +1,4 @@
+import { of } from 'most';
 import { mapObj } from './util';
 
 const reduxSinksReducer = (newReduxSink, reduxSink) =>
@@ -9,6 +10,6 @@ const reduxSinksReducer = (newReduxSink, reduxSink) =>
     )(reduxSinkObj),
   }), reduxSink);
 
-const reduxSinksCombiner = (...reduxSinks) => reduxSinks.reduce(reduxSinksReducer);
+const reduxSinksCombiner = (...reduxSinks) => reduxSinks.reduce(reduxSinksReducer, of({}));
 
 export default reduxSinksCombiner;
