@@ -15,7 +15,7 @@ export interface CreateComponentOptions {
   wrapper: HigherOrderComponent;
   sinks: HigherOrderComponent | HigherOrderComponent[];
   sources: HigherOrderComponent | HigherOrderComponent[];
-  isolate: false | ((Sources: any) => (null | string | {}));
+  isolate: false | ((Sources: any) => (null | string | {})) | null | string | {};
 }
 
 export interface CreateComponent {
