@@ -1,5 +1,4 @@
 import addActionHandlers from './hoc/addActionHandlers';
-import isolate from './hoc/isolate';
 import logActions from './hoc/logActions';
 import logProps from './hoc/logProps';
 import mapActions from './hoc/mapActions';
@@ -23,7 +22,6 @@ export {
 } from './util';
 
 export { addActionHandlers };
-export { isolate };
 export { logActions };
 export { logProps };
 export { mapActions };

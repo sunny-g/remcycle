@@ -1,7 +1,7 @@
 import { ComponentClass } from '@types/react';
+import isolate from '@sunny-g/cycle-utils/es2015/isolate';
 import { Component, HigherOrderComponent } from '@sunny-g/cycle-utils/es2015/interfaces';
 import addActionHandlers, { Handlers } from './hoc/addActionHandlers';
-import isolate from './hoc/isolate';
 import { compose, omit, pick, pipe } from './util';
 
 export interface CreateComponentOptions {
@@ -45,7 +45,7 @@ const baseChildrenHOC = _keys => BaseComponent => _sources => {
  *  - main      : the base component to be wrapped
  *  - handlers  : React function callbacks to be passed as props (usually, only used with `view`)
  *  - children  : object (soon to be array of objects) of HOCs to define what children should be rendered and how their collective state should be maintained
- *  - wrapper   : HOC defining any low level functionality required for this component or it's children (usually, only used with `main`)
+ *  - wrapper   : HOC defining any low level functionality required for this component or it's children
  *  - sinks     : HOC of sink transformations
  *  - sources   : HOC of source transformations
  *  - isolate   : function returning the isolation configuration to be applied to all instances of this component
@@ -60,7 +60,7 @@ const baseChildrenHOC = _keys => BaseComponent => _sources => {
  *    - receives most-manipulated sources
  *    - merges/combines its own sinks with least-manipulated sinks
  *  - wrapper
- *    - performs any last-minute source manipulation for `main`, `view`, and/or `children`
+ *    - performs any last-minute source manipulation for `main` and/or `children`
  *    - provides lowest-level interface for sink manipulation
  *  - sinks
  *    - performs manipulation of sinks with sources available from source manipulations
@@ -86,8 +86,8 @@ const createComponent: CreateComponent = options => {
   const childrenHOC = (children === defaultChildren) ?
     identity :
     compose(
-      compose(...[].concat(children.sources)),
-      pipe(...[].concat(children.sinks)),
+      compose(...([].concat(children.sources))),
+      pipe(...([].concat(children.sinks))),
       baseChildrenHOC(children.keys),
     );
   const sinksHOC = pipe(...([].concat(sinks)));
