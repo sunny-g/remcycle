@@ -55,8 +55,8 @@ const withProps: WithProps = (namesOrPropsOrCreator, propsCreator) => mapSources
 
     const watchedProps$ = combineArray(nullFn, watchedPropsStreams);
     const mappedProps$ = watchedProps$
-      .sample(propsCreator, propsSource, watchedProps$)
-      .skipRepeats(shallowEquals);
+      .sample((_, props) => propsCreator(props), watchedProps$, propsSource)
+      .skipRepeatsWith(shallowEquals);
 
     return {
       props: propsSource
