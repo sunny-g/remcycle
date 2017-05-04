@@ -49,7 +49,7 @@ describe('withProps HOC', () => {
     );
     const Main = hoc(main);
 
-    test('should take watched prop names and prop creator', done => {
+    test('should take watched prop names and props creator', done => {
       const sources = { props: of({ test1: 1 }) };
       const sinks = Main(sources);
 
@@ -58,6 +58,8 @@ describe('withProps HOC', () => {
         .tap(props => expect(props.test2).toBe(100))
         .observe(done);
     });
+
+    test.skip('should take an empty watched props name array and run props creactor', done => {});
 
     test('should run prop creator when watched props have changed', done => {
       const sources = {
@@ -82,7 +84,7 @@ describe('withProps HOC', () => {
         .observe(() => {});
     });
 
-    test('should not run prop creator when watched props haven\'t changed', done => {
+    test('should not run props creator when watched props haven\'t changed', done => {
       let propCreatorCallCount = 0;
 
       const hoc = withProps(
