@@ -16,11 +16,11 @@ describe('createComponent', () => {
       React.createElement('div', null, 'Hello')
     );
 
-    const HelloComponent = createComponent({
+    const createHelloComponent = () => createComponent({
       main: fromReactDOMComponent('REACT', Hello),
     });
 
-    expect(HelloComponent).not.toThrow();
+    expect(createHelloComponent).not.toThrow();
   });
 
   test('should render the provided props', done => {
