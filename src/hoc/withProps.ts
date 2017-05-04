@@ -23,10 +23,14 @@ const withProps: WithProps = (namesOrPropsOrCreator, propsCreator) => mapSources
 
     if (isFunction || isProps) {
       return {
-        props: propsSource.map(props => ({
-          ...props,
-          ...(isFunction ? (namesOrPropsOrCreator as ({}) => {})(props) : namesOrPropsOrCreator),
-        })),
+        props: propsSource
+          .map(props => ({
+            ...props,
+            ...(isFunction ?
+              (namesOrPropsOrCreator as ({}) => {})(props) :
+              namesOrPropsOrCreator
+            ),
+          })),
       };
     }
 
@@ -41,13 +45,18 @@ const withProps: WithProps = (namesOrPropsOrCreator, propsCreator) => mapSources
     if (watchedPropsStreams.length === 0) {
       return {
         props: propsSource
-          .map(propsCreator)
+          .map(props => ({
+            ...props,
+            ...propsCreator(props),
+          }))
           .skipRepeatsWith(shallowEquals)
       };
     }
 
     const watchedProps$ = combineArray(nullFn, watchedPropsStreams);
-    const mappedProps$ = watchedProps$.sample(propsCreator, propsSource, watchedProps$);
+    const mappedProps$ = watchedProps$
+      .sample(propsCreator, propsSource, watchedProps$)
+      .skipRepeats(shallowEquals);
 
     return {
       props: propsSource
