@@ -70,7 +70,7 @@ const baseChildrenHOC = _keys => BaseComponent => _sources => {
 const createComponent: CreateComponent = options => {
   const {
     main,
-    handlers = {},
+    handlers,
     children = defaultChildren,
     wrapper = identity,
     sinks = identity,
@@ -82,7 +82,9 @@ const createComponent: CreateComponent = options => {
     throw new Error('Missing parameter: `main` Cycle component required');
   }
 
-  const handlersHOC = addActionHandlers(handlers);
+  const handlersHOC = handlers ?
+    addActionHandlers(handlers) :
+    identity;
   const childrenHOC = (children === defaultChildren) ?
     identity :
     compose(
