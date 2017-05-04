@@ -47,7 +47,7 @@ const withProps: WithProps = (namesOrPropsOrCreator, propsCreator) => mapSources
     }
 
     const watchedProps$ = combineArray(nullFn, watchedPropsStreams);
-    const mappedProps$ = watchedProps$.sample(propsCreator, propsSource);
+    const mappedProps$ = watchedProps$.sample(propsCreator, propsSource, watchedProps$);
 
     return {
       props: propsSource
