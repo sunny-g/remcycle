@@ -64,7 +64,7 @@ describe('addActionHandlers HOC', () => {
     sinks.props.observe(() => {});
   });
 
-  test('should emit actions based on `actionCreatorStream` logic when handler is invoked', done => {
+  test('should emit actions based on `actionStreamCreator` logic when handler is invoked', done => {
     function main({ props }) {
       return {
         props: props
@@ -75,7 +75,7 @@ describe('addActionHandlers HOC', () => {
     const Main = addActionHandlers({
       onClick: {
         type: TYPE1,
-        actionCreatorStream: (sources, event$) => {
+        actionStreamCreator: (sources, event$) => {
           return event$
             .sample((_, props) => type1(props.text), event$, sources.props);
         },

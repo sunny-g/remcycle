@@ -2,13 +2,13 @@ import { from, of } from 'most';
 import { hold } from '@most/hold';
 import mapSourcesAndSinks from '@sunny-g/cycle-utils/es2015/mapSourcesAndSinks';
 import { HigherOrderComponent } from '@sunny-g/cycle-utils/es2015/interfaces';
-import { mapObj } from '../util'
+import { mapObj, shallowEquals } from '../util'
 
 export interface ActionDescription {
   type: string;
   hold?: boolean;
   actionCreator?: (props: any, ...events: any[]) => any;
-  actionCreatorStream?: (sources: any, event$: any) => any;
+  actionStreamCreator?: (sources: any, event$: any) => any;
 }
 
 export interface Handlers {
@@ -21,15 +21,14 @@ export interface AddActionHandlers {
 
 const addActionHandlers: AddActionHandlers = (handlers = {}) => mapSourcesAndSinks(
   [ 'REACT', 'props' ], (REACT, propsSource = of({})) => {
-    const createReactHandlers = mapObj((actionDescription, handlerName) =>
+    const propHandlers = mapObj((actionDescription, handlerName) =>
       REACT.handler(handlerName, actionDescription['hold'])
-    );
+    )(handlers);
     return {
       props: propsSource
-        .map(props => ({
-          ...props,
-          ...createReactHandlers(handlers),
-        })),
+        .map(props => ({ ...props, ...propHandlers }))
+        .skipRepeatsWith(shallowEquals)
+        .thru(hold),
     };
   },
   'REDUX', (REDUX, sources) => {
@@ -43,20 +42,19 @@ const addActionHandlers: AddActionHandlers = (handlers = {}) => mapSourcesAndSin
           type: actionType,
           hold: shouldHold,
           actionCreator,
-          actionCreatorStream,
+          actionStreamCreator,
         } = actionDescription;
 
         const event$ = from(REACT.event(handlerName, shouldHold));
-        const action$ = (actionCreatorStream !== undefined)
-          ? actionCreatorStream(sources, event$)
+        const action$ = (typeof actionStreamCreator === 'function')
+          ? actionStreamCreator(sources, event$)
           : event$
             .sample((eventArgs, props) =>
               actionCreator(props, ...([].concat(eventArgs))),
               event$, propsSource
             )
             .filter(action => action !== undefined)
-            .thru(action$ => shouldHold ? action$.thru(hold) : action$)
-            .multicast();
+            .thru(action$ => shouldHold ? action$.thru(hold) : action$.multicast());
 
         return { ...action$s, [actionType]: action$ };
       }, {});
