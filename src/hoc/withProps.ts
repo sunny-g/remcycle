@@ -17,7 +17,7 @@ export interface WithProps {
  */
 const withProps: WithProps = (namesOrPropsOrCreator, propsCreator) => mapSources(
   'props', (propsSource = of({})) => {
-    const isFunction = (
+    const isPropCreatorFunction = (
       propsCreator === undefined && typeof namesOrPropsOrCreator === 'function'
     );
     const isProps = (
@@ -27,12 +27,13 @@ const withProps: WithProps = (namesOrPropsOrCreator, propsCreator) => mapSources
       && typeof namesOrPropsOrCreator === 'object'
     );
 
-    if (isFunction || isProps) {
+    // propCreator function or props to merge
+    if (isPropCreatorFunction || isProps) {
       return {
         props: propsSource
           .map(props => ({
             ...props,
-            ...(isFunction
+            ...(isPropCreatorFunction
               ? (namesOrPropsOrCreator as ({}) => {})(props)
               : namesOrPropsOrCreator
             ),
@@ -42,6 +43,7 @@ const withProps: WithProps = (namesOrPropsOrCreator, propsCreator) => mapSources
       };
     }
 
+    // props to watch + a props creator function
     const watchedPropNames = [].concat(namesOrPropsOrCreator);
     if (watchedPropNames.length === 0) {
       throw new Error('`withProps`: Define prop names to watch, or only define the `propsCreator`');
@@ -59,8 +61,8 @@ const withProps: WithProps = (namesOrPropsOrCreator, propsCreator) => mapSources
 
     return {
       props: propsSource
-        .sample((props, mapped) => ({
-          ...props, ...mapped,
+        .sample((props, mappedProps) => ({
+          ...props, ...mappedProps,
         }), propsSource, mappedProps$)
         .skipRepeatsWith(shallowEquals)
         .thru(hold),

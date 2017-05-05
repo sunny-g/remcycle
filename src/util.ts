@@ -28,9 +28,20 @@ export const omit = (keys, obj) =>
       return { ...newObj, [key]: obj[key] };
     }, {});
 
+export const path = (paths, obj) => {
+  let val = obj;
+  let idx = 0;
+  while (idx < paths.length) {
+    if (val == null) { return; }
+    val = val[paths[idx]];
+    idx += 1;
+  }
+  return val;
+}
+
 export const pick = (keys, obj) =>
   keys
     .reduce((newObj, key) => ({
       ...newObj,
-      [key]: obj[key],
+      [key]: path(key.split('.'), obj),
     }), {});
