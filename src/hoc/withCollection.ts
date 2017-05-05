@@ -1,4 +1,5 @@
-import { of, merge } from 'most';
+import { of, mergeArray } from 'most';
+import { hold } from '@most/hold';
 import Collection from '@motorcycle/collection';
 import compose from 'ramda/src/compose';
 import mapSources from '@sunny-g/cycle-utils/es2015/mapSources';
@@ -22,16 +23,17 @@ const withCollection: WithCollection = (key, initialCollection, reducers) => map
   '*', sources => {
     const { REDUX, props: propsSource = of({}) } = sources;
 
-    const reducer$ = merge(...Object
-      .keys(reducers)
-      .map(actionType => {
-        const action$ = REDUX.action.select(actionType);
+    const reducer$ = mergeArray(
+      Object
+        .keys(reducers)
+        .map(actionType => {
+          const action$ = REDUX.action.select(actionType);
 
-        return action$
-          .sample((action, props) => state =>
-            reducers[actionType](state, action, props, sources),
-          action$, propsSource);
-      }),
+          return action$
+            .sample((action, props) => state =>
+              reducers[actionType](state, action, props, sources),
+            action$, propsSource);
+        }),
     );
 
     return {
@@ -40,7 +42,7 @@ const withCollection: WithCollection = (key, initialCollection, reducers) => map
           reducer(collection), initialCollection
         )
         .skipRepeatsWith(Collection.areItemsEqual)
-        .multicast(),
+        .thru(hold),
     };
   },
 );

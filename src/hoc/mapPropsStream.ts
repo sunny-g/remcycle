@@ -1,4 +1,5 @@
 import { of, Stream } from 'most';
+import { hold } from '@most/hold';
 import mapSources from '@sunny-g/cycle-utils/es2015/mapSources';
 import { HigherOrderComponent } from '@sunny-g/cycle-utils/es2015/interfaces';
 import { shallowEquals } from '../util';
@@ -11,7 +12,8 @@ const mapPropsStream: MapPropsStream = (mapper) => mapSources(
   'props', (propsSource = of({})) => ({
     props: propsSource
       .thru(mapper)
-      .skipRepeatsWith(shallowEquals),
+      .skipRepeatsWith(shallowEquals)
+      .thru(hold),
   }),
 );
 

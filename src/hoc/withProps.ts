@@ -1,7 +1,8 @@
-import { of, combineArray } from 'most';
+import { of, mergeArray } from 'most';
+import { hold } from '@most/hold';
 import mapSources from '@sunny-g/cycle-utils/es2015/mapSources';
 import { HigherOrderComponent } from '@sunny-g/cycle-utils/es2015/interfaces';
-import { shallowEquals } from '../util';
+import { pick, shallowEquals } from '../util';
 
 const nullFn = (...args) => null;
 
@@ -16,55 +17,52 @@ export interface WithProps {
  */
 const withProps: WithProps = (namesOrPropsOrCreator, propsCreator) => mapSources(
   'props', (propsSource = of({})) => {
-    const isFunction = (typeof namesOrPropsOrCreator === 'function');
-    const isProps = (namesOrPropsOrCreator !== null
+    const isFunction = (
+      propsCreator === undefined && typeof namesOrPropsOrCreator === 'function'
+    );
+    const isProps = (
+      propsCreator === undefined
+      && namesOrPropsOrCreator !== null
       && !Array.isArray(namesOrPropsOrCreator)
-      && typeof namesOrPropsOrCreator === 'object');
+      && typeof namesOrPropsOrCreator === 'object'
+    );
 
     if (isFunction || isProps) {
       return {
         props: propsSource
           .map(props => ({
             ...props,
-            ...(isFunction ?
-              (namesOrPropsOrCreator as ({}) => {})(props) :
-              namesOrPropsOrCreator
+            ...(isFunction
+              ? (namesOrPropsOrCreator as ({}) => {})(props)
+              : namesOrPropsOrCreator
             ),
-          })),
-      };
-    }
-
-    const watchedPropsStreams = []
-      .concat(namesOrPropsOrCreator)
-      .map(propName => propsSource
-        .map(props => props[propName])
-        .filter(prop => prop !== undefined)
-        .skipRepeatsWith(shallowEquals)
-      );
-
-    if (watchedPropsStreams.length === 0) {
-      return {
-        props: propsSource
-          .map(props => ({
-            ...props,
-            ...propsCreator(props),
           }))
           .skipRepeatsWith(shallowEquals)
+          .thru(hold),
       };
     }
 
-    const watchedProps$ = combineArray(nullFn, watchedPropsStreams);
+    const watchedPropNames = [].concat(namesOrPropsOrCreator);
+    if (watchedPropNames.length === 0) {
+      throw new Error('`withProps`: Define prop names to watch, or only define the `propsCreator`');
+    }
+
+    const watchedProps$ = propsSource
+      .map(props => pick(watchedPropNames, props))
+      .skipRepeatsWith(shallowEquals)
+      .map(_ => null);
+
     const mappedProps$ = watchedProps$
       .sample((_, props) => propsCreator(props), watchedProps$, propsSource)
       .skipRepeatsWith(shallowEquals);
 
     return {
       props: propsSource
-        .sample((props, mappedProps) => ({
-          ...props,
-          ...mappedProps,
+        .sample((props, mapped) => ({
+          ...props, ...mapped,
         }), propsSource, mappedProps$)
-        .skipRepeatsWith(shallowEquals),
+        .skipRepeatsWith(shallowEquals)
+        .thru(hold),
     };
   },
 );
