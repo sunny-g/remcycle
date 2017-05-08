@@ -56,7 +56,7 @@ const withProps: WithProps = (namesOrPropsOrCreator, propsCreator) => mapSources
 
     const mappedProps$ = watchedProps$
       .sample((_, props) => propsCreator(props), watchedProps$, propsSource)
-      .filter(mappedProps => mappedProps !== undefined)
+      .map(mappedProps => mappedProps !== undefined ? mappedProps : {})
       .skipRepeatsWith(shallowEquals);
 
     return {
