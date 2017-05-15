@@ -4,7 +4,7 @@ import Collection from '@motorcycle/collection';
 import compose from 'ramda/src/compose';
 import mapSources from '@sunny-g/cycle-utils/es2015/mapSources';
 import { HigherOrderComponent } from '@sunny-g/cycle-utils/es2015/interfaces';
-import { Action } from '@sunny-g/cycle-redux-driver/dist/es2015/interfaces';
+import { Action } from '@sunny-g/cycle-redux-driver/es2015/interfaces';
 
 export interface collectionStateReducer {
   (state: any, action: Action<any>, props: {}, sources: {}): any;
