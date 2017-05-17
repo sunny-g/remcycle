@@ -1,4 +1,5 @@
 /* global process */
+
 const shallowEquals = require('shallow-equals');
 
 export { shallowEquals };

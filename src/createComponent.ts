@@ -113,13 +113,13 @@ const createComponent: CreateComponent = options => {
 
   const mainHOC = compose(
     isolateHOC,
+    propTypesHOC,
     actionTypesHOC,
     sourcesHOC,
     sinksHOC,
     wrapper,
     childrenHOC,
     handlersHOC,
-    propTypesHOC,
   );
 
   return mainHOC(main);
