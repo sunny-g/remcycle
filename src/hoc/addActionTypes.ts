@@ -16,8 +16,7 @@ const addActionTypes = (name, actionTypes = {}): HigherOrderComponent =>
               } catch (_) {}
           })
           : action$
-      ))
-      .thru(hold),
+      )),
   }));
 
 export default addActionTypes;
