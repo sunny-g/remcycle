@@ -1,9 +1,14 @@
+/* global process */
 const shallowEquals = require('shallow-equals');
 
 export { shallowEquals };
 
 export const throwIfMissing = () => {
   throw new Error(`Missing parameter`);
+}
+
+export const isProd = () => {
+  return process && process.env && process.env.NODE_ENV && process.env.NODE_ENV === 'production';
 }
 
 // alt for ramda/src/mapObjIndexed

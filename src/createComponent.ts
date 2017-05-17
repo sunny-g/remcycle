@@ -1,10 +1,13 @@
-import { ComponentClass } from '@types/react';
+import { of } from 'most';
 import isolate from '@sunny-g/cycle-utils/es2015/isolate';
 import { Component, HigherOrderComponent } from '@sunny-g/cycle-utils/es2015/interfaces';
 import addActionHandlers, { Handlers } from './hoc/addActionHandlers';
-import { compose, omit, pick, pipe } from './util';
+import addActionTypes from './hoc/addActionTypes';
+import addPropTypes from './hoc/addPropTypes'
+import { compose, isProd, mapObj, omit, pick, pipe } from './util';
 
 export interface CreateComponentOptions {
+  name: string;
   main: Component;
   handlers: Handlers;
   children: {
@@ -16,6 +19,8 @@ export interface CreateComponentOptions {
   sinks: HigherOrderComponent | HigherOrderComponent[];
   sources: HigherOrderComponent | HigherOrderComponent[];
   isolate: false | ((Sources: any) => (null | string | {})) | null | string | {};
+  actionTypes: { [key: string]: any };
+  propTypes: { [key: string]: any };
 }
 
 export interface CreateComponent {
@@ -42,6 +47,7 @@ const baseChildrenHOC = _keys => BaseComponent => _sources => {
  * Creates a Cycle.js-compliant component in layers of higher-order components, built around either a React view component or an existing Cycle.js component
  *
  * Each property results in an HOC and is applied in the following order:
+ *  - name      : name of the created component
  *  - main      : the base component to be wrapped
  *  - handlers  : React function callbacks to be passed as props (usually, only used with `view`)
  *  - children  : object (soon to be array of objects) of HOCs to define what children should be rendered and how their collective state should be maintained
@@ -76,7 +82,11 @@ const createComponent: CreateComponent = options => {
     sinks = identity,
     sources = identity,
     isolate: isolateOptions = false,
+    actionTypes = {},
+    propTypes = {},
   } = options;
+
+  const name = options.name || main.name;
 
   if (main === undefined) {
     throw new Error('Missing parameter: `main` Cycle component required');
@@ -98,13 +108,18 @@ const createComponent: CreateComponent = options => {
     identity :
     isolate(isolateOptions);
 
+  const actionTypesHOC = addActionTypes(name, actionTypes);
+  const propTypesHOC = addPropTypes(name, propTypes);
+
   const mainHOC = compose(
     isolateHOC,
+    actionTypesHOC,
     sourcesHOC,
     sinksHOC,
     wrapper,
     childrenHOC,
     handlersHOC,
+    propTypesHOC,
   );
 
   return mainHOC(main);
