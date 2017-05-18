@@ -1,4 +1,5 @@
 import { of, merge } from 'most';
+import { hold } from '@most/hold';
 import mapSources from '@sunny-g/cycle-utils/es2015/mapSources';
 import { HigherOrderComponent } from '@sunny-g/cycle-utils/es2015/interfaces';
 import { shallowEquals } from '../util';
@@ -37,12 +38,25 @@ const withState: WithState = (propName, initialState, reducers) => mapSources(
         }),
     );
 
-    const state$ = reducer$
-      .scan((state, reducer: (any) => any) => reducer(state), initialState);
+    const state$ = (typeof initialState === 'function')
+      ? (function() {
+        const defaultState = Symbol('=== default withState state ===');
+        const initialStateReducer$ = propsSource
+          .take(1)
+          .map(props => _ => initialState(props));
+
+        return initialStateReducer$
+          .concat(reducer$)
+          .scan((state, reducer: (any: any) => any) => reducer(state), defaultState)
+          .filter(state => state !== defaultState);
+      })()
+      : reducer$
+        .scan((state, reducer: (any: any) => any) => reducer(state), initialState);
 
     const props$ = propsSource
       .combine((props, state) => ({ ...props, [propName]: state }), state$)
-      .skipRepeatsWith(shallowEquals);
+      .skipRepeatsWith(shallowEquals)
+      .thru(hold);
 
     return { props: props$ };
   },
