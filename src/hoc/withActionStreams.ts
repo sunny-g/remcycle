@@ -21,13 +21,14 @@ const withActionStreams: WithActionStreams = mappers => mapSinksWithSources(
         ...Object
           .keys(mappers)
           .reduce((newAction$s, listenedActionType) => {
-            const action$ = action$s[listenedActionType];
             const mapperObj = mappers[listenedActionType];
+            const action$ = action$s[listenedActionType];
 
             return {
               ...newAction$s,
-              ...mapObj(actionStreamCreator => actionStreamCreator(action$, sources))
-                (mapperObj),
+              ...mapObj(actionStreamCreator => {
+                return actionStreamCreator(action$, sources)
+              })(mapperObj),
             };
           }, {}),
       })),

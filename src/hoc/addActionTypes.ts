@@ -8,14 +8,13 @@ import { isProd, mapObj } from '../util';
 const addActionTypes = (name, actionTypes = {}): HigherOrderComponent =>
   mapSinks('REDUX', (REDUX = of({})) => ({
     REDUX: isProd() ? REDUX : REDUX
-      .map(mapObj((action$, actionType) =>
-        actionTypes.hasOwnProperty(actionType)
-          ? action$.tap(({ payload }) => {
-              try {
-                PropTypes.checkPropTypes(actionTypes, { [actionType]: payload }, 'prop', name)
-              } catch (_) {}
-          })
-          : action$
+      .map(mapObj((action$, actionType) => !actionTypes.hasOwnProperty(actionType)
+        ? action$
+        : action$.tap(({ payload }) => {
+            try {
+              PropTypes.checkPropTypes(actionTypes, { [actionType]: payload }, 'prop', name)
+            } catch (_) {}
+        })
       )),
   }));
 
