@@ -4,12 +4,12 @@ import { HigherOrderComponent } from '@sunny-g/cycle-utils/es2015/interfaces';
 import { ActionStream } from '@sunny-g/cycle-redux-driver/es2015/interfaces';
 import { mapObj } from '../util';
 
-export interface ActionMapper {
+export interface ActionStreamCreator {
   (action$: ActionStream<any>, sources: any): ActionStream<any>;
 }
 
 export interface WithActionStreams {
-  ( mappers: { [actionType: string]: { [actionType: string]: ActionMapper } }
+  ( mappers: { [actionType: string]: { [actionType: string]: ActionStreamCreator } }
   ): HigherOrderComponent;
 }
 
