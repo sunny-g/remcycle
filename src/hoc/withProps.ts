@@ -1,7 +1,7 @@
 import { of, mergeArray } from 'most';
 import { hold } from '@most/hold';
-import mapSources from '@sunny-g/cycle-utils/es2015/mapSources';
 import { HigherOrderComponent } from '@sunny-g/cycle-utils/src/interfaces';
+import mapPropsStream from './mapPropsStream';
 import { pick, shallowEquals } from '../util';
 
 const nullFn = (...args) => null;
@@ -15,8 +15,8 @@ export interface WithProps {
 
 /**
  */
-const withProps: WithProps = (namesOrPropsOrCreator, propsCreator) => mapSources(
-  'props', (propsSource = of({})) => {
+const withProps: WithProps = (namesOrPropsOrCreator, propsCreator) =>
+  mapPropsStream(propsSource => {
     const isPropCreatorFunction = (
       propsCreator === undefined && typeof namesOrPropsOrCreator === 'function'
     );
@@ -29,18 +29,14 @@ const withProps: WithProps = (namesOrPropsOrCreator, propsCreator) => mapSources
 
     // propCreator function or props to merge
     if (isPropCreatorFunction || isProps) {
-      return {
-        props: propsSource
-          .map(props => ({
-            ...props,
-            ...(isPropCreatorFunction
-              ? (namesOrPropsOrCreator as ({}) => {})(props)
-              : namesOrPropsOrCreator
-            ),
-          }))
-          .skipRepeatsWith(shallowEquals)
-          .thru(hold),
-      };
+      return propsSource
+        .map(props => ({
+          ...props,
+          ...(isPropCreatorFunction
+            ? (namesOrPropsOrCreator as ({}) => {})(props)
+            : namesOrPropsOrCreator
+          ),
+        }));
     }
 
     // props to watch + a props creator function
@@ -56,18 +52,15 @@ const withProps: WithProps = (namesOrPropsOrCreator, propsCreator) => mapSources
 
     const mappedProps$ = watchedProps$
       .sample((_, props) => propsCreator(props), watchedProps$, propsSource)
-      .map(mappedProps => mappedProps !== undefined ? mappedProps : {})
+      .map(mappedProps => {
+        return (mappedProps !== undefined && mappedProps !== null) ? mappedProps : {}
+      })
       .skipRepeatsWith(shallowEquals);
 
-    return {
-      props: propsSource
-        .sample((props, mappedProps) => ({
-          ...props, ...mappedProps,
-        }), propsSource, mappedProps$)
-        .skipRepeatsWith(shallowEquals)
-        .thru(hold),
-    };
-  },
-);
+    return propsSource
+      .sample((props, mappedProps) => ({
+        ...props, ...mappedProps,
+      }), propsSource, mappedProps$);
+  });
 
 export default withProps;

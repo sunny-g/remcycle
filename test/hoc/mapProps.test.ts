@@ -10,18 +10,20 @@ describe('mapProps HOC', () => {
       return { props };
     }
 
-    const props$ = of({ test1: true, test2: false });
-
-    const hoc = mapProps(props => ({
+    const hoc = mapProps(({ test1 }) => ({
+      test1,
       test2: true,
+      test3: false,
     }));
+
+    const props$ = of({ test1: true, test2: true });
 
     const sinks = hoc(main)({ props: props$ });
 
     sinks.props
-      .tap(props => expect(props.test1).toBeUndefined())
-      .tap(props => expect(props.test2).toBeDefined())
+      .tap(props => expect(props.test1).toBe(true))
       .tap(props => expect(props.test2).toBe(true))
+      .tap(props => expect(props.test3).toBe(false))
       .observe(done);
   });
 
