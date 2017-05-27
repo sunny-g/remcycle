@@ -1,5 +1,5 @@
 import mapSinks from '@sunny-g/cycle-utils/es2015/mapSinks';
-import { HigherOrderComponent } from '@sunny-g/cycle-utils/es2015/interfaces';
+import { HigherOrderComponent } from '@sunny-g/cycle-utils/src/interfaces';
 import { shallowEquals } from '../util';
 
 export interface MapView {

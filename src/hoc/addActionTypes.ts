@@ -1,7 +1,7 @@
 import { of } from 'most';
 import { hold } from '@most/hold';
 import mapSinks from '@sunny-g/cycle-utils/es2015/mapSinks';
-import { HigherOrderComponent } from '@sunny-g/cycle-utils/es2015/interfaces';
+import { HigherOrderComponent } from '@sunny-g/cycle-utils/src/interfaces';
 import PropTypes from 'prop-types';
 import { isProd, mapObj } from '../util';
 

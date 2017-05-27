@@ -1,6 +1,6 @@
 import { of } from 'most';
 import isolate from '@sunny-g/cycle-utils/es2015/isolate';
-import { Component, HigherOrderComponent } from '@sunny-g/cycle-utils/es2015/interfaces';
+import { Component, HigherOrderComponent } from '@sunny-g/cycle-utils/src/interfaces';
 import addActionHandlers, { Handlers } from './hoc/addActionHandlers';
 import addActionTypes from './hoc/addActionTypes';
 import addPropTypes from './hoc/addPropTypes'

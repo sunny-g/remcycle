@@ -1,7 +1,7 @@
 import { of, Stream } from 'most';
 import mapSinksWithSources from '@sunny-g/cycle-utils/es2015/mapSinksWithSources';
-import { HigherOrderComponent } from '@sunny-g/cycle-utils/es2015/interfaces';
-import { ActionStream } from '@sunny-g/cycle-redux-driver/es2015/interfaces';
+import { HigherOrderComponent } from '@sunny-g/cycle-utils/src/interfaces';
+import { ActionStream } from '@sunny-g/cycle-redux-driver/src/interfaces';
 import { mapObj } from '../util';
 
 export interface ActionStreamCreator {

@@ -1,7 +1,7 @@
 import { of, mergeArray } from 'most';
 import { hold } from '@most/hold';
 import mapSources from '@sunny-g/cycle-utils/es2015/mapSources';
-import { HigherOrderComponent } from '@sunny-g/cycle-utils/es2015/interfaces';
+import { HigherOrderComponent } from '@sunny-g/cycle-utils/src/interfaces';
 import { pick, shallowEquals } from '../util';
 
 const nullFn = (...args) => null;

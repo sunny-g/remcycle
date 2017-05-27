@@ -1,7 +1,7 @@
 import { from, of } from 'most';
 import { hold } from '@most/hold';
 import mapSourcesAndSinks from '@sunny-g/cycle-utils/es2015/mapSourcesAndSinks';
-import { HigherOrderComponent } from '@sunny-g/cycle-utils/es2015/interfaces';
+import { HigherOrderComponent } from '@sunny-g/cycle-utils/src/interfaces';
 import { mapObj, shallowEquals } from '../util'
 
 export interface ActionDescription {
