@@ -50,7 +50,7 @@ const addActionHandlers: AddActionHandlers = (handlers = {}) => mapSourcesAndSin
           ? actionStreamCreator(sources, event$)
           : event$
             .sample((eventArgs, props) =>
-              actionCreator(props, ...([].concat(eventArgs))),
+              actionCreator(props, eventArgs),
               event$, propsSource
             )
             .filter(action => action !== undefined)
