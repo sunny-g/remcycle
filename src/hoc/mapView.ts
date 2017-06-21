@@ -6,6 +6,7 @@ export interface MapView {
   (mapper: ((vtree: any) => any)): HigherOrderComponent;
 }
 
+// TODO: combine with current propsSource
 const mapView: MapView = (mapper) => mapSinks(
   'REACT', reactSink => ({
     REACT: reactSink

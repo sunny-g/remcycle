@@ -7,12 +7,13 @@ const logActions = (sinkLogger = () => {}, actionLoggers = {}): HigherOrderCompo
   'REDUX', (REDUX = of({})) => ({
     REDUX: REDUX
       .tap(sinkLogger)
-      .map(mapObj((action$, actionType) => actionLoggers.hasOwnProperty(actionType)
-        ? action$
-          .tap(actionLoggers[actionType])
-          .multicast()
-        : action$
-      )),
+      .map(mapObj((action$, actionType) => {
+        if (actionLoggers.hasOwnProperty(actionType)) {
+          action$.observe(actionLoggers[actionType]);
+        }
+
+        return action$;
+      })),
   }),
 );
 
