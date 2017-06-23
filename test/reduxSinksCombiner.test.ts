@@ -25,14 +25,14 @@ describe('reduxSinksCombiner', () => {
       onClick: {
         type: TYPE1,
         actionCreator: _ => type1(text),
-      }
+      },
     })(main);
 
     const Main2 = addActionHandlers({
       onClick: {
         type: TYPE2,
         actionCreator: _ => type2(text),
-      }
+      },
     })(main);
 
     const sources = { REACT: new ReactSource() };
@@ -54,7 +54,7 @@ describe('reduxSinksCombiner', () => {
       onClick: {
         type: TYPE1,
         actionCreator: ({ text }) => type1(text),
-      }
+      },
     })(main);
 
     const Main2 = addActionHandlers({
@@ -65,7 +65,7 @@ describe('reduxSinksCombiner', () => {
       onClick2: {
         type: TYPE2,
         actionCreator: _ => type2(text),
-      }
+      },
     })(main);
 
     const sources = { REACT: new ReactSource() };

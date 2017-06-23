@@ -13,7 +13,7 @@ describe('mapView HOC', () => {
   const HelloComponent = fromReactDOMComponent('REACT', Hello);
 
   test('should wrap a React vtree with other React elements', done => {
-    const hoc = mapView(vtree =>
+    const hoc = mapView((_, vtree) =>
       createElement('div', null, vtree)
     );
 
@@ -31,5 +31,7 @@ describe('mapView HOC', () => {
       })
       .observe(() => {});
   });
+
+  test.skip('should update new React vtree when receiving new props', done => {});
 
 });
