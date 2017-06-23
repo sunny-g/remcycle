@@ -2,7 +2,7 @@ import { of, merge } from 'most';
 import { hold } from '@most/hold';
 import mapSources from '@sunny-g/cycle-utils/es2015/mapSources';
 import { HigherOrderComponent } from '@sunny-g/cycle-utils/src/interfaces';
-import { shallowEquals } from '../util';
+import { pick, shallowEquals } from '../util';
 
 export interface WithState {
   ( propName: string,
@@ -19,7 +19,7 @@ const withState: WithState = (propName, initialState, reducers) => mapSources(
     // pass through only when every other prop was the same as before AND this one was different
       // aka, skip if `isComplete` is the same AND
     const propReducer$ = propsSource
-      .map(props => props[propName])
+      .map(pick(propName))
       .filter(prop => prop !== undefined)
       .skipRepeatsWith(shallowEquals)
       .map(prop => state => prop);

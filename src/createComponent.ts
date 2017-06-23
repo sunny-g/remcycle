@@ -4,7 +4,7 @@ import { Component, HigherOrderComponent } from '@sunny-g/cycle-utils/src/interf
 import addActionHandlers, { Handlers } from './hoc/addActionHandlers';
 import addActionTypes from './hoc/addActionTypes';
 import addPropTypes from './hoc/addPropTypes'
-import { compose, isProd, mapObj, omit, pick, pipe } from './util';
+import { compose, isProd, omit, pick, pipe } from './util';
 
 export interface CreateComponentOptions {
   name: string;

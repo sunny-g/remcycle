@@ -31,7 +31,7 @@ const withActions: WithActions = mappers => mapSinksWithSources(
                   .sample(actionCreator, action$, propsSource)
                   .filter(action => action !== undefined)
                   .multicast();
-              })(mapperObj),
+              }, mapperObj),
             };
           }, {}),
       })),

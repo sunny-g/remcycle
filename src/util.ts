@@ -1,5 +1,6 @@
 /* global process */
 
+import curry from 'ramda/src/curry';
 const shallowEquals = require('shallow-equals');
 
 export { shallowEquals };
@@ -13,18 +14,18 @@ export const isProd = () => {
 }
 
 // alt for ramda/src/mapObjIndexed
-export const mapObj = valueKeyMapper => obj =>
+export const mapObj = curry((valueKeyMapper, obj) =>
   Object
     .keys(obj)
     .reduce((newObj, key) => ({
       ...newObj,
       [key]: valueKeyMapper(obj[key], key, obj),
-    }), {});
+    }), {}));
 
 export const compose = (...fns) => arg => fns.reverse().reduce((val, fn) => fn(val), arg);
 export const pipe = (...fns) => arg => fns.reduce((val, fn) => fn(val), arg);
 
-export const omit = (keys, obj) =>
+export const omit = curry((keys, obj) =>
   Object
     .keys(obj)
     .reduce((newObj, key) => {
@@ -32,9 +33,9 @@ export const omit = (keys, obj) =>
         return newObj;
       }
       return { ...newObj, [key]: obj[key] };
-    }, {});
+    }, {}));
 
-export const path = (paths, obj) => {
+export const path = curry((paths, obj) => {
   let val = obj;
   let idx = 0;
   while (idx < paths.length) {
@@ -43,11 +44,12 @@ export const path = (paths, obj) => {
     idx += 1;
   }
   return val;
-}
+});
 
-export const pick = (keys, obj) =>
-  keys
+export const pick = curry((keys, obj) =>
+  []
+    .concat(keys)
     .reduce((newObj, key) => ({
       ...newObj,
       [key]: path(key.split('.'), obj),
-    }), {});
+    }), {}));

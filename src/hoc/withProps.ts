@@ -46,7 +46,7 @@ const withProps: WithProps = (namesOrPropsOrCreator, propsCreator) =>
     }
 
     const watchedProps$ = propsSource
-      .map(props => pick(watchedPropNames, props))
+      .map(pick(watchedPropNames))
       .skipRepeatsWith(shallowEquals)
       .map(_ => null);
 

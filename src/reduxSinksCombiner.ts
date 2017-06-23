@@ -7,7 +7,7 @@ const reduxSinksReducer = (newReduxSink, reduxSink) =>
     ...mapObj((action$, actionType) => (newReduxSinkObj.hasOwnProperty(actionType)
       ? newReduxSinkObj[actionType].merge(action$)
       : action$
-    ))(reduxSinkObj),
+    ), reduxSinkObj),
   }), reduxSink);
 
 const reduxSinksCombiner = (...reduxSinks) => reduxSinks.reduce(reduxSinksReducer, of({}));

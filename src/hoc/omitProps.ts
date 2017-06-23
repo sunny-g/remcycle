@@ -7,8 +7,7 @@ export interface OmitProps {
 }
 
 const omitProps = propNames => {
-  const omitter = props =>
-    omit([].concat(propNames), props);
+  const omitter = omit([].concat(propNames));
 
   return mapProps(omitter);
 }

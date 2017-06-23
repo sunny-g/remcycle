@@ -22,9 +22,10 @@ export interface AddActionHandlers {
 
 const addActionHandlers: AddActionHandlers = (handlers = {}) => mapSourcesAndSinks(
   [ 'REACT', 'props' ], (REACT, propsSource = of({})) => {
-    const propHandlers = mapObj((actionDescription, handlerName) =>
-      REACT.handler(handlerName, actionDescription['hold'])
-    )(handlers);
+    const propHandlers = mapObj(
+      (actionDescription, handlerName) =>
+        REACT.handler(handlerName, actionDescription['hold']),
+      handlers);
     return {
       props: propsSource
         .map(props => ({ ...props, ...propHandlers }))
