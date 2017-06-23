@@ -34,4 +34,6 @@ describe('mapView HOC', () => {
 
   test.skip('should update new React vtree when receiving new props', done => {});
 
+  test.skip('should update new React vtree when receiving picked props', done => {});
+
 });
