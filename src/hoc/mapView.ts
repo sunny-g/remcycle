@@ -1,4 +1,5 @@
-import mapSinks from '@sunny-g/cycle-utils/es2015/mapSinks';
+import { of } from 'most';
+import mapSinksWithSources from '@sunny-g/cycle-utils/es2015/mapSinksWithSources';
 import { HigherOrderComponent } from '@sunny-g/cycle-utils/src/interfaces';
 import { shallowEquals } from '../util';
 
@@ -7,10 +8,11 @@ export interface MapView {
 }
 
 // TODO: combine with current propsSource
-const mapView: MapView = (mapper) => mapSinks(
-  'REACT', reactSink => ({
-    REACT: reactSink
-      .map(mapper)
+const mapView: MapView = (mapper) => mapSinksWithSources(
+  'REACT', 'props', (reactSink, propsSource = of({})) => ({
+    REACT: propsSource
+      .skipRepeatsWith(shallowEquals)
+      .combine(mapper, reactSink)
       .skipRepeatsWith(shallowEquals),
   }),
 );
