@@ -19,7 +19,7 @@ const withState: WithState = (propName, initialState, reducers) => mapSources(
     // pass through only when every other prop was the same as before AND this one was different
       // aka, skip if `isComplete` is the same AND
     const propReducer$ = propsSource
-      .map(pick(propName))
+      .map(props => props[propName])
       .filter(prop => prop !== undefined)
       .skipRepeatsWith(shallowEquals)
       .map(prop => state => prop);
