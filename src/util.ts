@@ -49,7 +49,8 @@ export const path = curry((paths, obj) => {
 export const pick = curry((keys, obj) =>
   []
     .concat(keys)
-    .reduce((newObj, key) => ({
-      ...newObj,
-      [key]: path(key.split('.'), obj),
-    }), {}));
+    .reduce((newObj, key) => {
+      const keyPath = key.split('.');
+      const objKey = keyPath[keyPath.length - 1];
+      return { ...newObj, [objKey]: path(keyPath, obj) };
+    }, {}));
