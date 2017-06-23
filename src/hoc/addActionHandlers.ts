@@ -2,6 +2,7 @@ import { from, of } from 'most';
 import { hold } from '@most/hold';
 import mapSourcesAndSinks from '@sunny-g/cycle-utils/es2015/mapSourcesAndSinks';
 import { HigherOrderComponent } from '@sunny-g/cycle-utils/src/interfaces';
+import reduxSinksCombiner from '../reduxSinksCombiner';
 import { mapObj, shallowEquals } from '../util'
 
 export interface ActionDescription {
@@ -31,7 +32,7 @@ const addActionHandlers: AddActionHandlers = (handlers = {}) => mapSourcesAndSin
         .thru(hold),
     };
   },
-  'REDUX', (REDUX, sources) => {
+  'REDUX', (REDUX = of({}), sources) => {
     const { REACT, props: propsSource = of({}) } = sources;
 
     const actionStreams = Object
@@ -46,20 +47,25 @@ const addActionHandlers: AddActionHandlers = (handlers = {}) => mapSourcesAndSin
         } = actionDescription;
 
         const event$ = from(REACT.event(handlerName, shouldHold));
-        const action$ = (typeof actionStreamCreator === 'function')
+        const newAction$ = (typeof actionStreamCreator === 'function')
           ? actionStreamCreator(sources, event$)
           : event$
             .sample((eventArgs, props) =>
               actionCreator(props, eventArgs),
               event$, propsSource
             )
-            .filter(action => action !== undefined)
-            .thru(action$ => shouldHold ? action$.thru(hold) : action$.multicast());
+            .filter(action => action !== undefined);
 
-        return { ...action$s, [actionType]: action$ };
+        const mergedAction$ = (action$s.hasOwnProperty(actionType)
+            ? action$s[actionType].merge(newAction$)
+            : newAction$
+          )
+          .thru(action$ => shouldHold ? action$.thru(hold) : action$.multicast());
+
+        return { ...action$s, [actionType]: mergedAction$ };
       }, {});
 
-    return { REDUX: of(actionStreams) };
+    return { REDUX: reduxSinksCombiner(REDUX, of(actionStreams)) };
   },
 );
 
