@@ -11,7 +11,7 @@ export interface collectionStateReducer {
 }
 
 export interface WithCollection {
-  ( key: string,
+  ( collectionSourceKey: string,
     initialCollection: any,
     reducers: { [actionType: string]: collectionStateReducer },
   ): HigherOrderComponent;
@@ -19,32 +19,33 @@ export interface WithCollection {
 
 /**
  */
-const withCollection: WithCollection = (key, initialCollection, reducers) => mapSources(
-  '*', sources => {
-    const { REDUX, props: propsSource = of({}) } = sources;
+const withCollection: WithCollection = (collectionSourceKey, initialCollection, reducers) =>
+  mapSources(
+    '*', sources => {
+      const { REDUX, props: propsSource = of({}) } = sources;
 
-    const reducer$ = mergeArray(
-      Object
-        .keys(reducers)
-        .map(actionType => {
-          const action$ = REDUX.action.select(actionType);
+      const reducer$ = mergeArray(
+        Object
+          .keys(reducers)
+          .map(actionType => {
+            const actionReducer = reducers[actionType];
+            const action$ = REDUX.action.select(actionType);
 
-          return action$
-            .sample((action, props) => state =>
-              reducers[actionType](state, action, props, sources),
-            action$, propsSource);
-        }),
-    );
+            return action$
+              .sample((action, props) => collection =>
+                actionReducer(collection, action, props, sources),
+              action$, propsSource);
+          }),
+      );
 
-    return {
-      [key]: reducer$
-        .scan((collection, reducer: (collection: any) => any) =>
-          reducer(collection), initialCollection
-        )
-        .skipRepeatsWith(Collection.areItemsEqual)
-        .thru(hold),
-    };
-  },
-);
+      return {
+        [collectionSourceKey]: reducer$
+          .scan((collection, reducer: (collection: any) => any) => reducer(collection),
+            initialCollection)
+          .skipRepeatsWith(Collection.areItemsEqual)
+          .thru(hold),
+      };
+    },
+  );
 
 export default withCollection;
