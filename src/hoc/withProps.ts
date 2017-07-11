@@ -48,7 +48,7 @@ const withProps: WithProps = (namesOrPropsOrCreator, propsCreator) =>
     const watchedProps$ = propsSource
       .map(pick(watchedPropNames))
       .skipRepeatsWith(shallowEquals)
-      .map(_ => null);
+      .constant(null);
 
     const mappedProps$ = watchedProps$
       .sample((_, props) => propsCreator(props), watchedProps$, propsSource)
