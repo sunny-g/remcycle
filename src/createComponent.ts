@@ -92,9 +92,15 @@ const createComponent: CreateComponent = options => {
     throw new Error('Missing parameter: `main` Cycle component required');
   }
 
-  const handlersHOC = handlers ?
-    addActionHandlers(handlers) :
-    identity;
+  const isolateHOC = (isolateOptions === false) ?
+    identity :
+    isolate(isolateOptions);
+
+  const propTypesHOC = addPropTypes(name, propTypes);
+  const actionTypesHOC = addActionTypes(name, actionTypes);
+
+  const sourcesHOC = compose(...([].concat(sources)));
+  const sinksHOC = pipe(...([].concat(sinks)));
   const childrenHOC = (children === defaultChildren) ?
     identity :
     compose(
@@ -102,14 +108,9 @@ const createComponent: CreateComponent = options => {
       pipe(...([].concat(children.sinks))),
       baseChildrenHOC(children.keys),
     );
-  const sinksHOC = pipe(...([].concat(sinks)));
-  const sourcesHOC = compose(...([].concat(sources)));
-  const isolateHOC = (isolateOptions === false) ?
-    identity :
-    isolate(isolateOptions);
-
-  const actionTypesHOC = addActionTypes(name, actionTypes);
-  const propTypesHOC = addPropTypes(name, propTypes);
+  const handlersHOC = handlers ?
+    addActionHandlers(handlers) :
+    identity;
 
   const mainHOC = compose(
     isolateHOC,
