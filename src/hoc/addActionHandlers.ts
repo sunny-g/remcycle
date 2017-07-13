@@ -20,54 +20,62 @@ export interface AddActionHandlers {
   (handlers: Handlers): HigherOrderComponent;
 }
 
-const addActionHandlers: AddActionHandlers = (handlers = {}) => mapSourcesAndSinks(
-  [ 'REACT', 'props' ], (REACT, propsSource = of({})) => {
-    const propHandlers = mapObj(
-      (actionDescription, handlerName) =>
-        REACT.handler(handlerName, actionDescription['hold']),
-      handlers);
-    return {
-      props: propsSource
-        .map(props => ({ ...props, ...propHandlers }))
-        .skipRepeatsWith(shallowEquals)
-        .thru(hold),
-    };
-  },
-  'REDUX', (REDUX = of({}), sources) => {
-    const { REACT, props: propsSource = of({}) } = sources;
+const sourceNames = ['REACT', 'props'];
+const sinkNames = ['REDUX'];
 
-    const actionStreams = Object
-      .keys(handlers)
-      .reduce((action$s, handlerName) => {
-        const actionDescription = handlers[handlerName];
-        const {
-          type: actionType,
-          hold: shouldHold,
-          actionCreator,
-          actionStreamCreator,
-        } = actionDescription;
+const createSourcesMapper = handlers => (REACT, propsSource = of({})) => {
+  const propHandlers = mapObj(
+    (actionDescription, handlerName) =>
+      REACT.handler(handlerName, actionDescription['hold']),
+    handlers);
+  return {
+    props: propsSource
+      .map(props => ({ ...props, ...propHandlers }))
+      .skipRepeatsWith(shallowEquals)
+      .thru(hold),
+  };
+};
 
-        const event$ = from(REACT.event(handlerName, shouldHold));
-        const newAction$ = (typeof actionStreamCreator === 'function')
-          ? actionStreamCreator(sources, event$)
-          : event$
-            .sample((eventArgs, props) =>
-              actionCreator(props, eventArgs),
-              event$, propsSource
-            )
-            .filter(action => action !== undefined);
+const createSinksMapper = handlers => (REDUX = of({}), sources) => {
+  const { REACT, props: propsSource = of({}) } = sources;
 
-        const mergedAction$ = (action$s.hasOwnProperty(actionType)
-            ? action$s[actionType].merge(newAction$)
-            : newAction$
+  const actionStreams = Object
+    .keys(handlers)
+    .reduce((action$s, handlerName) => {
+      const actionDescription = handlers[handlerName];
+      const {
+        type: actionType,
+        hold: shouldHold,
+        actionCreator,
+        actionStreamCreator,
+      } = actionDescription;
+
+      const event$ = from(REACT.event(handlerName, shouldHold));
+      const newAction$ = (typeof actionStreamCreator === 'function')
+        ? actionStreamCreator(sources, event$)
+        : event$
+          .sample((eventArgs, props) =>
+            actionCreator(props, eventArgs),
+            event$, propsSource
           )
-          .thru(action$ => shouldHold ? action$.thru(hold) : action$.multicast());
+          .filter(action => action !== undefined);
 
-        return { ...action$s, [actionType]: mergedAction$ };
-      }, {});
+      const mergedAction$ = (action$s.hasOwnProperty(actionType)
+          ? action$s[actionType].merge(newAction$)
+          : newAction$
+        )
+        .thru(action$ => shouldHold ? action$.thru(hold) : action$.multicast());
 
-    return { REDUX: reduxSinksCombiner(REDUX, of(actionStreams)) };
-  },
-);
+      return { ...action$s, [actionType]: mergedAction$ };
+    }, {});
+
+  return { REDUX: reduxSinksCombiner(REDUX, of(actionStreams)) };
+};
+
+const addActionHandlers: AddActionHandlers = (handlers = {}) => {
+  const sourcesMapper = createSourcesMapper(handlers);
+  const sinksMapper = createSinksMapper(handlers);
+  return mapSourcesAndSinks(sourceNames, sourcesMapper, sinkNames, sinksMapper);
+}
 
 export default addActionHandlers;
