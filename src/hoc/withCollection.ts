@@ -12,23 +12,26 @@ export interface collectionStateReducer {
 
 export interface WithCollection {
   ( collectionSourceKey: string,
-    initialCollection: any,
-    reducers: { [actionType: string]: collectionStateReducer },
+    initialCollection: ((sources: {}) => any | any),
+    actionReducers: { [actionType: string]: collectionStateReducer },
   ): HigherOrderComponent;
 }
 
 /**
  */
-const withCollection: WithCollection = (collectionSourceKey, initialCollection, reducers) =>
+const withCollection: WithCollection = (collectionSourceKey, initialCollectionOrCreator, actionReducers) =>
   mapSources(
     '*', sources => {
       const { REDUX, props: propsSource = of({}) } = sources;
+      const initialCollection = typeof initialCollectionOrCreator === 'function'
+        ? initialCollectionOrCreator(sources)
+        : initialCollectionOrCreator;
 
       const reducer$ = mergeArray(
         Object
-          .keys(reducers)
+          .keys(actionReducers)
           .map(actionType => {
-            const actionReducer = reducers[actionType];
+            const actionReducer = actionReducers[actionType];
             const action$ = REDUX.action.select(actionType);
 
             return action$
