@@ -12,7 +12,7 @@ export interface collectionStateReducer {
 
 export interface WithCollection {
   ( collectionSourceKey: string,
-    initialCollection: ((sources: {}) => any | any),
+    initialCollectionOrCreator: ((sources: {}) => any | any),
     actionReducers: { [actionType: string]: collectionStateReducer },
   ): HigherOrderComponent;
 }
