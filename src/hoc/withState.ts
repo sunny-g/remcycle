@@ -43,10 +43,8 @@ const withState: WithState = (propName, initialState, actionReducers, propReduce
           }),
       );
 
-      const reducer$ = merge(
-        overwriteReducer$,
-        watchedPropReducer$,
-        ...Object
+      const actionReducer$ = mergeArray(
+        Object
           .keys(actionReducers)
           .map(actionType => {
             const actionReducer = actionReducers[actionType];
@@ -57,6 +55,12 @@ const withState: WithState = (propName, initialState, actionReducers, propReduce
                 state => actionReducer(state, action, props),
               action$, propsSource);
           }),
+      );
+
+      const reducer$ = merge(
+        overwriteReducer$,
+        watchedPropReducer$,
+        actionReducer$,
       );
 
       const state$ = (typeof initialState === 'function')

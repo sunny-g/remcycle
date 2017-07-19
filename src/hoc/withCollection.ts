@@ -1,4 +1,4 @@
-import { of, mergeArray } from 'most';
+import { of, merge, mergeArray } from 'most';
 import { hold } from '@most/hold';
 import Collection from '@motorcycle/collection';
 import compose from 'ramda/src/compose';
@@ -6,28 +6,48 @@ import mapSources from '@sunny-g/cycle-utils/es2015/mapSources';
 import { HigherOrderComponent } from '@sunny-g/cycle-utils/src/interfaces';
 import { Action } from '@sunny-g/cycle-redux-driver/src/interfaces';
 
-export interface collectionStateReducer {
+export interface CollectionActionReducer {
   (state: any, action: Action<any>, props: {}, sources: {}): any;
+}
+
+export interface CollectionPropReducer {
+  (state: any, props: {}, sources: {}): any;
 }
 
 export interface WithCollection {
   ( collectionSourceKey: string,
     initialCollectionOrCreator: ((sources: {}) => any | any),
-    actionReducers: { [actionType: string]: collectionStateReducer },
+    actionReducers: { [actionType: string]: CollectionActionReducer },
+    propReducers: { [propType: string]: CollectionPropReducer },
   ): HigherOrderComponent;
 }
 
 /**
  */
-const withCollection: WithCollection = (collectionSourceKey, initialCollectionOrCreator, actionReducers) =>
+const withCollection: WithCollection = (collectionSourceKey, initialCollectionOrCreator, actionReducers {}, propReducers = {}) =>
   mapSources(
     '*', sources => {
       const { REDUX, props: propsSource = of({}) } = sources;
-      const initialCollection = typeof initialCollectionOrCreator === 'function'
-        ? initialCollectionOrCreator(sources)
-        : initialCollectionOrCreator;
 
-      const reducer$ = mergeArray(
+      const watchedPropReducer$ = mergeArray(
+        Object
+          .keys(propReducers)
+          .map(_watchedPropsNames => {
+            const propReducer = propReducers[_watchedPropsNames];
+            const watchedPropsNames = _watchedPropsNames.split(',');
+            const watchedProps$ = propsSource
+              .map(pick(watchedPropsNames))
+              .skipRepeatsWith(shallowEquals)
+              .constant(null);
+
+            return watchedProps$
+              .sample(props =>
+                state => propReducer(state, props, sources),
+              propsSource);
+          }),
+      );
+
+      const actionReducer$ = mergeArray(
         Object
           .keys(actionReducers)
           .map(actionType => {
@@ -41,10 +61,28 @@ const withCollection: WithCollection = (collectionSourceKey, initialCollectionOr
           }),
       );
 
+      const reducer$ = merge(
+        watchedPropReducer$,
+        actionReducer$,
+      );
+
+      const state$ = (typeof initialCollection === 'function')
+        ? ((function() {
+          const defaultCollection = Symbol('=== default withCollection collection ===');
+          const initialCollectionReducer$ = initialCollectionOrCreator(sources)
+            .map(collection => _ => collection);
+
+          return initialCollectionReducer$
+            .merge(reducer$)
+            .scan((collection, reducer) => reducer(collection), defaultCollection)
+            .filter(collection => collection !== defaultCollection);
+        })())
+        : reducer$.scan((collection, reducer) =>
+            reducer(collection),
+          initialCollectionOrCreator);
+
       return {
-        [collectionSourceKey]: reducer$
-          .scan((collection, reducer: (collection: any) => any) => reducer(collection),
-            initialCollection)
+        [collectionSourceKey]: state$
           .skipRepeatsWith(Collection.areItemsEqual)
           .thru(hold),
       };
