@@ -1,10 +1,11 @@
+import compose from 'ramda/src/compose';
 import { of, merge, mergeArray } from 'most';
 import { hold } from '@most/hold';
 import Collection from '@motorcycle/collection';
-import compose from 'ramda/src/compose';
 import mapSources from '@sunny-g/cycle-utils/es2015/mapSources';
 import { HigherOrderComponent } from '@sunny-g/cycle-utils/src/interfaces';
 import { Action } from '@sunny-g/cycle-redux-driver/src/interfaces';
+import { pick, shallowEquals } from '../util';
 
 export interface CollectionActionReducer {
   (state: any, action: Action<any>, props: {}, sources: {}): any;

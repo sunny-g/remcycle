@@ -10,7 +10,10 @@ export const throwIfMissing = () => {
 }
 
 export const isProd = () => {
-  return process && process.env && process.env.NODE_ENV && process.env.NODE_ENV === 'production';
+  return process
+    && process.env
+    && process.env.NODE_ENV
+    && process.env.NODE_ENV === 'production';
 }
 
 // alt for ramda/src/mapObjIndexed
