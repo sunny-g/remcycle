@@ -17,7 +17,7 @@ export interface CollectionPropReducer {
 
 export interface WithCollection {
   ( collectionSourceKey: string,
-    initialCollectionOrCreator: ((sources: {}) => any | any),
+    initialCollectionOrCreator: (any | ((sources: {}) => any)),
     actionReducers: { [actionType: string]: CollectionActionReducer },
     propReducers: { [propType: string]: CollectionPropReducer },
   ): HigherOrderComponent;
@@ -25,7 +25,7 @@ export interface WithCollection {
 
 /**
  */
-const withCollection: WithCollection = (collectionSourceKey, initialCollectionOrCreator, actionReducers {}, propReducers = {}) =>
+const withCollection: WithCollection = (collectionSourceKey, initialCollectionOrCreator, actionReducers = {}, propReducers = {}) =>
   mapSources(
     '*', sources => {
       const { REDUX, props: propsSource = of({}) } = sources;
@@ -42,9 +42,9 @@ const withCollection: WithCollection = (collectionSourceKey, initialCollectionOr
               .constant(null);
 
             return watchedProps$
-              .sample(props =>
-                state => propReducer(state, props, sources),
-              propsSource);
+              .sample((_, props) => collection =>
+                propReducer(collection, props, sources),
+              watchedProps$, propsSource);
           }),
       );
 
@@ -67,7 +67,7 @@ const withCollection: WithCollection = (collectionSourceKey, initialCollectionOr
         actionReducer$,
       );
 
-      const state$ = (typeof initialCollection === 'function')
+      const state$ = (typeof initialCollectionOrCreator === 'function')
         ? ((function() {
           const defaultCollection = Symbol('=== default withCollection collection ===');
           const initialCollectionReducer$ = initialCollectionOrCreator(sources)
@@ -75,10 +75,12 @@ const withCollection: WithCollection = (collectionSourceKey, initialCollectionOr
 
           return initialCollectionReducer$
             .merge(reducer$)
-            .scan((collection, reducer) => reducer(collection), defaultCollection)
+            .scan((collection, reducer: (collection: any) => any) =>
+              reducer(collection),
+            defaultCollection)
             .filter(collection => collection !== defaultCollection);
         })())
-        : reducer$.scan((collection, reducer) =>
+        : reducer$.scan((collection, reducer: (collection: any) => any) =>
             reducer(collection),
           initialCollectionOrCreator);
 
