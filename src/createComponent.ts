@@ -52,13 +52,16 @@ const baseChildrenHOC = _keys => BaseComponent => _sources => {
  *  - handlers  : React function callbacks to be passed as props (usually, only used with `view`)
  *  - children  : object (soon to be array of objects) of HOCs to define what children should be rendered and how their collective state should be maintained
  *  - wrapper   : HOC defining any low level functionality required for this component or it's children
- *  - sinks     : HOC of sink transformations
- *  - sources   : HOC of source transformations
+ *  - sinks     : HOC or array of HOCs describing sink transformations
+ *  - sources   : HOC or array of HOCs describing source transformations
  *  - isolate   : function returning the isolation configuration to be applied to all instances of this component
  *
  * By applying these HOCs in this order, we get the resulting mental model:
  *  - main:
- *    - main takes in most-manipulated sources, least-manipulated sinks
+ *    - main takes in:
+ *      - most-manipulated sources
+ *      - least-manipulated sinks
+ *      - any children components
  *  - handlers
  *    - takes in all non-callback props, adds function callbacks as props
  *    - emits least-manipulated actions using the most-complete props available
@@ -124,6 +127,6 @@ const createComponent: CreateComponent = options => {
   );
 
   return mainHOC(main);
-}
+};
 
 export default createComponent;

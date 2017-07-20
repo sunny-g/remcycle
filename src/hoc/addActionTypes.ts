@@ -5,16 +5,17 @@ import { HigherOrderComponent } from '@sunny-g/cycle-utils/src/interfaces';
 import PropTypes from 'prop-types';
 import { isProd, mapObj } from '../util';
 
-const addActionTypes = (name, actionTypes = {}): HigherOrderComponent =>
+const addActionTypes = (componentName, actionTypes = {}): HigherOrderComponent =>
   mapSinks('REDUX', (REDUX = of({})) => ({
     REDUX: isProd() ? REDUX : REDUX
       .map(mapObj((action$, actionType) => !actionTypes.hasOwnProperty(actionType)
         ? action$
-        : action$.tap(({ payload }) => {
+        : action$
+          .tap(({ payload }) => {
             try {
-              PropTypes.checkPropTypes(actionTypes, { [actionType]: payload }, 'prop', name)
+              PropTypes.checkPropTypes(actionTypes, { [actionType]: payload }, 'action payload', componentName)
             } catch (_) {}
-        })
+          }),
       )),
   }));
 
