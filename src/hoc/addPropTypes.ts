@@ -6,13 +6,13 @@ import PropTypes from 'prop-types';
 import mapPropsStream from './mapPropsStream';
 import { isProd, mapObj } from '../util';
 
-const addPropTypes = (name, propTypes = {}): HigherOrderComponent =>
+const addPropTypes = (componentName, propTypes = {}): HigherOrderComponent =>
   mapPropsStream(propsSource => isProd()
     ? propsSource
     : propsSource
       .tap(props => {
         try {
-          PropTypes.checkPropTypes(propTypes, props, 'prop', name);
+          PropTypes.checkPropTypes(propTypes, props, 'prop', componentName);
         } catch (_) {}
       }),
   );
