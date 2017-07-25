@@ -1,4 +1,4 @@
-import { of, Stream } from 'most';
+import { empty, of, merge, Stream } from 'most';
 import mapSinksWithSources from '@sunny-g/cycle-utils/es2015/mapSinksWithSources';
 import { HigherOrderComponent } from '@sunny-g/cycle-utils/src/interfaces';
 import { Action } from '@sunny-g/cycle-redux-driver/src/interfaces';
@@ -26,10 +26,16 @@ const withActions: WithActions = mappers => mapSinksWithSources(
 
             return {
               ...newAction$s,
-              ...mapObj(actionCreator => {
+              ...mapObj((actionCreator, emittedActionType) => {
+                const upstreamCreatedAction$ = merge(
+                  action$s[emittedActionType] || empty(),
+                  newAction$s[emittedActionType] || empty(),
+                );
+
                 return action$
                   .sample(actionCreator, action$, propsSource)
                   .filter(action => action !== undefined)
+                  .merge(upstreamCreatedAction$)
                   .multicast();
               }, mapperObj),
             };
