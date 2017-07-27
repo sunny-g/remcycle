@@ -8,7 +8,7 @@ export interface WithState {
   ( propName: string,
     initialState: any,
     actionReducers: { [type: string]: (state: any, action: any, props: any) => any; },
-    propReducers: { [type: string]: (state: any, props: any) => any; },
+    propReducers: { [propNames: string]: (state: any, props: any) => any; },
   ): HigherOrderComponent;
 }
 
