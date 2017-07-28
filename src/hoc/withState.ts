@@ -37,9 +37,17 @@ const withState: WithState = (propName, initialState, actionReducers, propReduce
               .constant(null);
 
             return watchedProps$
-              .sample(props =>
-                state => propReducer(state, props),
-              propsSource);
+              .sample(props => state => {
+                let newState = state;
+
+                try {
+                  newState = propReducer(state, props);
+                } catch(e) {
+                  console.error('error in `withState`', watchedPropsNames, '`propReducer`:', e);
+                } finally {
+                  return newState;
+                }
+              }, propsSource);
           }),
       );
 
@@ -51,9 +59,17 @@ const withState: WithState = (propName, initialState, actionReducers, propReduce
             const action$ = REDUX.action.select(actionType);
 
             return action$
-              .sample((action, props) =>
-                state => actionReducer(state, action, props),
-              action$, propsSource);
+              .sample((action, props) => state => {
+                let newState = state;
+
+                try {
+                  newState = actionReducer(state, action, props);
+                } catch(e) {
+                  console.error('error in `withState`', actionType, '`actionReducer`:', e);
+                } finally {
+                  return newState;
+                }
+              }, action$, propsSource);
           }),
       );
 
@@ -68,7 +84,17 @@ const withState: WithState = (propName, initialState, actionReducers, propReduce
           const defaultState = Symbol('=== default withState state ===');
           const initialStateReducer$ = propsSource
             .take(1)
-            .map(props => _ => initialState(props));
+            .map(props => _ => {
+              let firstState = props[propName];
+
+              try {
+                firstState = initialState(props);
+              } catch(e) {
+                console.error('error in `withState`', propName, '`initialState` creator:', e);
+              } finally {
+                return firstState;
+              }
+            });
 
           return initialStateReducer$
             .concat(reducer$)

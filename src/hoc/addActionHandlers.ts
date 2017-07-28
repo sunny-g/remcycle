@@ -54,10 +54,17 @@ const createSinksMapper = handlers => (REDUX = of({}), sources) => {
       const newAction$ = (typeof actionStreamCreator === 'function')
         ? actionStreamCreator(sources, event$)
         : event$
-          .sample((eventArgs, props) =>
-            actionCreator(props, eventArgs),
-            event$, propsSource
-          )
+          .sample((eventArgs, props) => {
+            let action;
+
+            try {
+              action = actionCreator(props, eventArgs);
+            } catch(e) {
+              console.error('error in `addActionHandlers`', handlerName, 'action creator:', e);
+            } finally {
+              return action;
+            }
+          }, event$, propsSource)
           .filter(action => action !== undefined);
 
       const mergedAction$ = (action$s.hasOwnProperty(actionType)

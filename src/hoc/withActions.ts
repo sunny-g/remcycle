@@ -33,7 +33,17 @@ const withActions: WithActions = mappers => mapSinksWithSources(
                 );
 
                 return action$
-                  .sample(actionCreator, action$, propsSource)
+                  .sample((action, props) => {
+                    let newAction;
+
+                    try {
+                      newAction = actionCreator(action, props);
+                    } catch(e) {
+                      console.error('error in `withActions`', listenedActionType, 'to', emittedActionType, '`actionCreator`:', e);
+                    } finally {
+                      return newAction;
+                    }
+                  }, action$, propsSource)
                   .filter(action => action !== undefined)
                   .merge(upstreamCreatedAction$)
                   .multicast();

@@ -42,9 +42,17 @@ const withCollection: WithCollection = (collectionSourceKey, initialCollectionOr
               .constant(null);
 
             return watchedProps$
-              .sample((_, props) => collection =>
-                propReducer(collection, props, sources),
-              watchedProps$, propsSource);
+              .sample((_, props) => collection => {
+                let newCollection = collection;
+
+                try {
+                  newCollection = propReducer(collection, props, sources);
+                } catch(e) {
+                  console.error('error in `withCollection`', watchedPropsNames, '`propReducer`:', e);
+                } finally {
+                  return newCollection;
+                }
+              }, watchedProps$, propsSource);
           }),
       );
 
@@ -56,9 +64,17 @@ const withCollection: WithCollection = (collectionSourceKey, initialCollectionOr
             const action$ = REDUX.action.select(actionType);
 
             return action$
-              .sample((action, props) => collection =>
-                actionReducer(collection, action, props, sources),
-              action$, propsSource);
+              .sample((action, props) => collection => {
+                let newCollection = collection;
+
+                try {
+                  newCollection = actionReducer(collection, action, props, sources);
+                } catch(e) {
+                  console.error('error in `withCollection`', actionType, '`actionReducer`:', e);
+                } finally {
+                  return newCollection;
+                }
+              }, action$, propsSource);
           }),
       );
 

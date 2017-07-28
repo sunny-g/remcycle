@@ -9,6 +9,16 @@ export interface MapProps {
 }
 
 const mapProps: MapProps = (mapper) =>
-  mapPropsStream(props$ => props$.map(mapper));
+  mapPropsStream(props$ => props$.map(props => {
+    let newProps = props;
+
+    try {
+      newProps = mapper(props);
+    } catch(e) {
+      console.error('error in `mapProps` mapper:', e);
+    } finally {
+      return newProps;
+    }
+  }));
 
 export default mapProps;

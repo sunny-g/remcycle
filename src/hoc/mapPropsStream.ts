@@ -11,7 +11,17 @@ export interface MapPropsStream {
 const mapPropsStream: MapPropsStream = (mapper) => mapSources(
   'props', (propsSource = of({})) => ({
     props: propsSource
-      .thru(mapper)
+      .thru(props$ => {
+        let newProps$ = props$;
+
+        try {
+          newProps$ = mapper(props$);
+        } catch(e) {
+          console.error('error in `mapPropsStream` mapper', e);
+        } finally {
+          return newProps$;
+        }
+      })
       .skipRepeatsWith(shallowEquals)
       .thru(hold),
   }),

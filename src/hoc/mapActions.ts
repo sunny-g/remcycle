@@ -18,7 +18,17 @@ const mapActions: MapActions = mappers => mapSinksWithSources(
       .map(mapObj((action$, actionType) => !mappers.hasOwnProperty(actionType)
         ? action$
         : action$
-          .sample(mappers[actionType], action$, propsSource)
+          .sample((action, props) => {
+            let newAction = action;
+
+            try {
+              newAction = mappers[actionType](action, props);
+            } catch(e) {
+              console.error('error in `mapActions`', actionType, 'mapper:', e);
+            } finally {
+              return newAction;
+            }
+          }, action$, propsSource)
           .filter(action => action !== undefined)
           .multicast()
       )),

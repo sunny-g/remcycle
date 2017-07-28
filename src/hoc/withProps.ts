@@ -30,13 +30,19 @@ const withProps: WithProps = (namesOrPropsOrCreator, propsCreator) =>
     // propCreator function or props to merge
     if (isPropCreatorFunction || isProps) {
       return propsSource
-        .map(props => ({
-          ...props,
-          ...(isPropCreatorFunction
-            ? (namesOrPropsOrCreator as ({}) => {})(props)
-            : namesOrPropsOrCreator
-          ),
-        }));
+        .map(props => {
+          let newProps = props;
+
+          try {
+            newProps = (isPropCreatorFunction
+              ? (namesOrPropsOrCreator as ({}) => {})(props)
+              : namesOrPropsOrCreator);
+          } catch (e) {
+            console.error('error in `withProps` `propsCreator`:', e);
+          } finally {
+            return { ...props, ...newProps };
+          }
+        });
     }
 
     // props to watch + a props creator function
@@ -51,7 +57,17 @@ const withProps: WithProps = (namesOrPropsOrCreator, propsCreator) =>
       .constant(null);
 
     const mappedProps$ = watchedProps$
-      .sample((_, props) => propsCreator(props), watchedProps$, propsSource)
+      .sample((_, props) => {
+        let newProps = props;
+
+        try {
+          newProps = propsCreator(props);
+        } catch(e) {
+          console.error('error in `withProps` `watchedPropsCreator`:', e);
+        } finally {
+          return newProps;
+        }
+      }, watchedProps$, propsSource)
       .map(mappedProps => {
         return (mappedProps !== undefined && mappedProps !== null) ? mappedProps : {}
       })

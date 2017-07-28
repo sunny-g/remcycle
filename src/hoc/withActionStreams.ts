@@ -32,10 +32,15 @@ const withActionStreams: WithActionStreams = mappers => mapSinksWithSources(
                   newAction$s[emittedActionType] || empty(),
                 );
 
-                return merge(
-                  upstreamCreatedAction$,
-                  actionStreamCreator(action$, sources),
-                );
+                let newAction$ = empty();
+
+                try {
+                  newAction$ = actionStreamCreator(action$, sources);
+                } catch(e) {
+                  console.error('error in `withActions`', listenedActionType, 'to', emittedActionType, '`actionStreamCreator`:', e);
+                } finally {
+                  return merge(upstreamCreatedAction$, newAction$);
+                }
               }, mapperObj),
             };
           }, {}),

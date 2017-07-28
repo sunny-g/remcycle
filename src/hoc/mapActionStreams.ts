@@ -17,9 +17,17 @@ const mapActionStreams: MapActionStreams = mappers => mapSinksWithSources(
     REDUX: REDUX
       .map(action$s => ({
         ...action$s,
-        ...mapObj((actionMapper, actionType) => (
-          actionMapper(action$s[actionType], sources)
-        ), mappers),
+        ...mapObj((actionMapper, actionType) => {
+          let newAction$ = action$s[actionType];
+
+          try {
+            newAction$ = actionMapper(newAction$, sources);
+          } catch(e) {
+            console.error('error in `mapActionStreams`', actionType, 'mapper:', e);
+          } finally {
+            return newAction$;
+          }
+        }, mappers),
       })),
   }),
 );
