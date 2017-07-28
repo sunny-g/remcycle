@@ -16,6 +16,8 @@ export const isProd = () => {
     && process.env.NODE_ENV === 'production';
 }
 
+export const identity = x => x;
+
 // alt for ramda/src/mapObjIndexed
 export const mapObj = curry((valueKeyMapper, obj) =>
   Object
