@@ -4,7 +4,7 @@ import { HigherOrderComponent } from '@sunny-g/cycle-utils/src/interfaces';
 import { pick, shallowEquals } from '../util';
 
 export interface MapView {
-  ( mapper: ((vtree: any) => any),
+  ( mapper: ((vtree: any, props: {}) => any),
     propsToPluck?: string | [string],
   ): HigherOrderComponent;
 }
@@ -15,7 +15,7 @@ const mapView: MapView = (mapper, propsToPluck = '*') => mapSinksWithSources(
     REACT: propsSource
       .map(props => propsToPluck === '*' ? props : pick(propsToPluck, props))
       .skipRepeatsWith(shallowEquals)
-      .combine(mapper, reactSink)
+      .combine((props, vtree) => mapper(vtree, props), reactSink)
       .skipRepeatsWith(shallowEquals),
   }),
 );
