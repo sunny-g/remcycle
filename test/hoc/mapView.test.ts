@@ -13,7 +13,7 @@ describe('mapView HOC', () => {
   const HelloComponent = fromReactDOMComponent('REACT', Hello);
 
   test('should wrap a React vtree with other React elements', done => {
-    const hoc = mapView((_, vtree) =>
+    const hoc = mapView(vtree =>
       createElement('div', null, vtree)
     );
 
