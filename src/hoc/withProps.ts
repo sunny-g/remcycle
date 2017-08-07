@@ -1,10 +1,6 @@
-import { of, mergeArray } from 'most';
-import { hold } from '@most/hold';
 import { HigherOrderComponent } from '@sunny-g/cycle-utils/src/interfaces';
 import mapPropsStream from './mapPropsStream';
 import { pick, shallowEquals } from '../util';
-
-const nullFn = (...args) => null;
 
 // TODO: use function overloading
 export interface WithProps {

@@ -1,13 +1,13 @@
 import { HigherOrderComponent } from '@sunny-g/cycle-utils/src/interfaces';
-import withProps from './withProps';
+import withPropsOnChange from './withPropsOnChange';
 
 export interface DoOnPropsChange {
-  ( watchedPropsNames: string | string[],
+  ( namesOrPredicate: string | string[] | ((props: {}) => boolean),
     callback: ((props: {}) => void),
   ): HigherOrderComponent;
 }
 
-const doOnPropsChange = (watchedPropsNames, callback) =>
-  withProps(watchedPropsNames, callback);
+const doOnPropsChange = (namesOrPredicate, callback) =>
+  withPropsOnChange(namesOrPredicate, callback);
 
 export default doOnPropsChange;
