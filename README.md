@@ -40,8 +40,8 @@ The following HOC factories and utilities are provided by this library:
   * [`mapActionStreams`](#mapactionstreams)
   * [`withActions`](#withactions)
   * [`withActionStreams`](#withactionstreams)
-  * [`defaultActions`](#defaultactions)
-  * [`defaultActionStreams`](#defaultactionstreams)
+  <!-- * [`defaultActions`](#defaultactions) -->
+  <!-- * [`defaultActionStreams`](#defaultactionstreams) -->
   <!-- * [`mergeActions`](#mergeactions) -->
   <!-- * [`mergeActionStreams`](#mergeactionstreams) -->
   <!-- * [`omitActions`](#omitactions) -->
@@ -49,10 +49,10 @@ The following HOC factories and utilities are provided by this library:
   * [`addActionHandlers`](#addactionhandlers)
   * [`addActionTypes`](#addactiontypes)
   * [`addPropTypes`](#addproptypes)
-  * [`logActions`](#logactions)
-  * [`logProps`](#logprops)
   * [`mapView`](#mapview)
   * [`withCollection`](#withcollection)
+  * [`logActions`](#logactions)
+  * [`logProps`](#logprops)
 * Utilities:
   * [`createComponent`](#createcomponent)
   * [`reactSinksCombiner`](#reactsinkscombiner)
@@ -124,6 +124,8 @@ If `propsCreator` returns `undefined`, upstream `props` are emitted unchanged.
 
 Useful for adding new `props`, overwriting upstream `props`, or for merging in new `props` that are expensive to create via the `propsCreator`.
 
+*NOTE: the watching behaviour is only included in this HOC factory for backwards-compatibility reasons - if you want to control when you create new `props`, you should use [`withPropsOnChange`](#withpropsonchange)*
+
 ##### example:
 
 ```js
@@ -154,7 +156,7 @@ withPropsOnChange(
 ): HigherOrderComponent
 ```
 
-Accepts name(s) of `props` to watch for changes (using `shallowEquals`) or a `predicate` function applied to `currentProps` and `previousProps`, and the listed `props` have changed (or when the `predicate` returns `true`), run the `propsCreator` on upstream `props` to return new `props` to be merged.
+Accepts name(s) of `props` to watch for changes (using `shallowEquals`) or a `predicate` function applied to `currentProps` and `previousProps`, and when the listed `props` have changed (or when the `predicate` returns `true`), run the `propsCreator` on upstream `props` to return new `props` to be merged.
 
 If `propsCreator` returns `undefined`, upstream `props` are emitted unchanged.
 
@@ -197,7 +199,7 @@ withState<T>(
   initialStateOrCreator: T | (props: {}) => T,
   actionReducers: {
     [actionType: string]:
-      (state: T, action: { type: string, payload: any, error: boolean, meta: {} }, props: {}) => T,
+      (state: T, action: FluxStandardAction<any>, props: {}) => T,
   },
   propReducers: {
     [propNames: string | string[]]:
@@ -278,7 +280,250 @@ doOnPropsChange(
 ): HigherOrderComponent
 ```
 
-Syntactically-identical to `withProps` or `withPropsOnChange`, but generally used to signal the performance of imperative/mutable/impure changes to existing `props`.
+Syntactically-identical to `withProps` or `withPropsOnChange`, but is recommended to be used when performing imperative/mutable/impure changes to existing `props`.
+
+### `mapActions`
+
+```js
+mapActions<T>(
+  { [actionType: string]:
+    (action: FluxStandardAction<T>, props: {}) => FluxStandardAction<T> | void
+  }
+): HigherOrderComponent
+```
+
+Transforms an `action` of the given `actionType` with the current `props`. If the transform returns `undefined`, the `action` is filtered out of the `action` stream.
+
+Useful for augmenting `action` payloads or filtering out `action`s with invalid or undesirable payloads.
+
+##### example:
+
+```js
+// filters out any values greater than the `maxAllowable` for the <input type="number"/> tag
+mapActions({
+  'Input/change': (action, { maxAllowable }) => {
+    return (Number(action.payload) > maxAllowable) ? void 0 : action;
+  },
+});
+```
+
+### `mapActionStreams`
+
+```js
+mapActionStreams<T>(
+  { [actionType: string]:
+    (action: Stream<FluxStandardAction<T>>, sources: {}) => Stream<FluxStandardAction<T>>
+  }
+): HigherOrderComponent
+```
+
+Identical to [`mapActions`](#mapactions), except the `action` stream creator function takes the `action` stream of the given `actionType` and all of the component's sources, returning the new `action` stream.
+
+##### example:
+
+```js
+// same example as above
+// filters out any values greater than the `maxAllowable` for the <input type="number"/> tag
+mapActionStreams({
+  'Input/change': (action$, { props: propsSource = of({}) }) => {
+    const maxAllowable$ = propsSource.map(({ maxAllowable }) => maxAllowable);
+  
+    return action$
+      .sample((action, maxAllowable) => ([ action, maxAllowable ]), action$, maxAllowable$)
+      .filter(([ { payload }, maxAllowable ]) => Number(payload) <= maxAllowable)
+      .map(([ action ]) => action)
+      .multicast();
+  },
+});
+```
+
+### `withActions`
+
+```js
+withActions<T, U>(
+  { [listenedActionType: string]:
+    { [emittedActionType: string]:
+      (listenedAction: FluxStandardAction<T>, props: {}) => FluxStandardAction<U>
+    }
+  }
+): HigherOrderComponent
+```
+
+Multiplexes an `action` stream onto another `action` stream - `action` creator function takes in each `listenedActionType` action and current `props` and returns an `action` of the `emittedActionType`. If an `action` stream of the `emittedActionType` already exists, the returned `action`s will be merged into that stream.
+
+Useful for emitting an additional `action` when a given action is emitted, or generally mapping a particular source to a new `action` stream.
+
+##### example:
+
+```js
+// maps an Input component change action to a new action specific to the MaxInput component
+withActions({
+  'Input/change': {
+    'MaxInput/set': ({ payload }) => setMaxInput(payload),
+  },
+});
+```
+
+### `withActionStreams`
+
+```js
+withActionStreams<T, U>(
+  { [listenedActionType: string]:
+    { [emittedActionType: string]:
+      (listenedActionStream: Stream<FluxStandardAction<T>>, sources: {}) => Stream<FluxStandardAction<U>>
+    }
+  }
+): HigherOrderComponent
+```
+
+Identical to [`withActions`](#withactions), except the `action` stream creator function takes the `action` stream of the given `listenedActionType` and all of the component's sources, returning the new `action` stream. If an `action` stream of the `emittedActionType` exists, the returned `action` stream will be merged into that stream.
+
+##### example:
+
+```js
+// same example as above, but debounces the emitted actions before emitting
+// maps an Input component change action to a new action specific to the MaxInput component
+withActionStreams({
+  'Input/change': {
+    'MaxInput/set': (inputChangeAction$, { Time }) => inputChangeAction$
+      .thru(Time.debounce(250))
+      .map(({ payload }) => setMaxInput(payload)),
+  },
+});
+
+```
+
+### `addActionHandlers`
+
+```js
+```
+
+Blah blah blah
+
+##### example:
+
+```js
+```
+
+### `addActionTypes`
+
+```js
+```
+
+Blah blah blah
+
+##### example:
+
+```js
+```
+
+### `addPropTypes`
+
+```js
+```
+
+Blah blah blah
+
+##### example:
+
+```js
+```
+
+### `logActions`
+
+```js
+```
+
+Blah blah blah
+
+##### example:
+
+```js
+```
+
+### `logProps`
+
+```js
+```
+
+Blah blah blah
+
+##### example:
+
+```js
+```
+
+### `mapView`
+
+```js
+```
+
+Blah blah blah
+
+##### example:
+
+```js
+```
+
+### `withCollection`
+
+```js
+```
+
+Blah blah blah
+
+##### example:
+
+```js
+```
+
+### `createComponent`
+
+```js
+```
+
+Blah blah blah
+
+##### example:
+
+```js
+```
+
+### `reactSinksCombiner`
+
+```js
+```
+
+Blah blah blah
+
+##### example:
+
+```js
+```
+
+### `reduxSinksCombiner`
+
+```js
+```
+
+Blah blah blah
+
+##### example:
+
+```js
+```
+
+### `shallowEquals`
+
+```js
+```
+
+Blah blah blah
+
+##### example:
+
+```js
+```
 
 ## contributing
 
