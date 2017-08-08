@@ -69,6 +69,14 @@ Transforms `props` to be passed into the base component as the `props` source st
 
 Useful as a base HOC for higher-level HOCs for transforming props (e.g. renaming, omitting, etc).
 
+##### example:
+
+```js
+mapProps(({ count, ...props }) => ({
+  value: count, // renames the count prop, omits the rest from the props source stream
+}));
+```
+
 ### `mapPropsStream`
 
 ```js
@@ -81,16 +89,27 @@ Same as `mapProps`, but transforms the `props` source stream (or `of({})` if `pr
 
 Useful as a base HOC for higher-level HOCs for more granular control over transforming props (e.g. throttling, filtering, etc).
 
+##### example:
+
+```js
+mapPropsStream(propsSource => {
+  return propsSource
+    .map(({ count, ...props }) => ({
+      value: count, // same example as above
+    }));
+});
+```
+
 ### `withProps`
 
 ```js
 withProps(
-  propsOrPropsCreator: {} | (props: {}) => {}
+  propsOrPropsCreator: {} | (props: {}) => {} | void,
 ): HigherOrderComponent
 
 withProps(
   watchedPropNames: string | string[],
-  propsCreator: (props: {}) => {},
+  propsCreator: (props: {}) => {} | void,
 ): HigherOrderComponent
 ```
 
@@ -100,6 +119,8 @@ Either:
 
 - accepts `props` to be merged with upstream `props`, or a function that transforms upstream `props` into new `props` to be merged
 - accepts name(s) of `props` to watch for changes (using `shallowEquals`), and when they have changed, run the `propsCreator` on upstream `props` to return new `props` to be merged.
+
+If `propsCreator` returns `undefined`, upstream `props` are emitted unchanged.
 
 Useful for adding new `props`, overwriting upstream `props`, or for merging in new `props` that are expensive to create via the `propsCreator`.
 
@@ -129,11 +150,13 @@ withProps(
 ```js
 withPropsOnChange(
   namesOrPredicate: string | string[] | (currentProps: {}, previousProps: {}) => boolean,
-  propsCreator: (props: {}) => {},
+  propsCreator: (props: {}) => {} | void,
 ): HigherOrderComponent
 ```
 
 Accepts name(s) of `props` to watch for changes (using `shallowEquals`) or a `predicate` function applied to `currentProps` and `previousProps`, and the listed `props` have changed (or when the `predicate` returns `true`), run the `propsCreator` on upstream `props` to return new `props` to be merged.
+
+If `propsCreator` returns `undefined`, upstream `props` are emitted unchanged.
 
 Useful for merging in new `props` that are expensive to create via the `propsCreator`.
 
@@ -215,6 +238,14 @@ defaultProps({ [propName: string]: any }): HigherOrderComponent
 
 Merges in a set of `props`, unless they already exist in the `props` source stream. Like `withProps`, but upstream `props` already in the `props` source stream take precedence.
 
+##### example:
+
+```js
+defaultProps({
+  count: 0, // if parent didn't provide a `count` prop, set it to 0 as a reasonable default
+});
+```
+
 ### `omitProps`
 
 ```js
@@ -222,6 +253,32 @@ omitProps(string | string[]): HigherOrderComponent
 ```
 
 Omits props from the `props` source stream.
+
+##### example:
+
+```js
+omitProps([ 'isLoading' ]); // omits the prop `isLoading`, perhaps because it wasn't needed
+```
+
+### `doOnPropsChange`
+
+```js
+doOnPropsChange(
+  propsCreator: (props: {}) => {} | void,
+): HigherOrderComponent
+
+doOnPropsChange(
+  watchedPropNames: string | string[],
+  propsCreator: (props: {}) => {} | void,
+): HigherOrderComponent
+
+doOnPropsChange(
+  namesOrPredicate: string | string[] | (currentProps: {}, previousProps: {}) => boolean,
+  propsCreator: (props: {}) => {} | void,
+): HigherOrderComponent
+```
+
+Syntactically-identical to `withProps` or `withPropsOnChange`, but generally used to signal the performance of imperative/mutable/impure changes to existing `props`.
 
 ## contributing
 
