@@ -9,8 +9,8 @@ export interface DoOnPropsChange {
 }
 
 const doOnPropsChange = (namesOrPredicateOrCallback, callback) => {
-  return callback === undefined
-    ? withProps(callback)
+  return (callback === undefined)
+    ? withProps(namesOrPredicateOrCallback)
     : withPropsOnChange(namesOrPredicateOrCallback, callback);
 };
 
