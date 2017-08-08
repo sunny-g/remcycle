@@ -15,8 +15,7 @@ const mapView: MapView = (mapper, propsToPluck = '*') => mapSinksWithSources(
     REACT: propsSource
       .map(props => propsToPluck === '*' ? props : pick(propsToPluck, props))
       .skipRepeatsWith(shallowEquals)
-      .combine((props, vtree) => mapper(vtree, props), reactSink)
-      .skipRepeatsWith(shallowEquals),
+      .combine((props, vtree) => mapper(vtree, props), reactSink),
   }),
 );
 
