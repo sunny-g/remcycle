@@ -47,10 +47,10 @@ The following HOC factories and utilities are provided by this library:
   <!-- * [`omitActions`](#omitactions) -->
 * Helper and other HOCs:
   * [`addActionHandlers`](#addactionhandlers)
-  * [`addActionTypes`](#addactiontypes)
-  * [`addPropTypes`](#addproptypes)
   * [`mapView`](#mapview)
   * [`withCollection`](#withcollection)
+  * [`addActionTypes`](#addactiontypes)
+  * [`addPropTypes`](#addproptypes)
   * [`logActions`](#logactions)
   * [`logProps`](#logprops)
 * Utilities:
@@ -58,6 +58,8 @@ The following HOC factories and utilities are provided by this library:
   * [`reactSinksCombiner`](#reactsinkscombiner)
   * [`reduxSinksCombiner`](#reduxsinkscombiner)
   * [`shallowEquals`](#shallowequals)
+
+*NOTE: Many HOC factories have two versions, one that exposes `props` and `action`s and another that exposes the raw `props` source stream, `action` streams and component sources - use the latter for more granular control over stream manipulation and creation.*
 
 ### `mapProps`
 
@@ -124,7 +126,7 @@ If `propsCreator` returns `undefined`, upstream `props` are emitted unchanged.
 
 Useful for adding new `props`, overwriting upstream `props`, or for merging in new `props` that are expensive to create via the `propsCreator`.
 
-*NOTE: the watching behaviour is only included in this HOC factory for backwards-compatibility reasons - if you want to control when you create new `props`, you should use [`withPropsOnChange`](#withpropsonchange)*
+*NOTE: the watching behaviour is only included in this HOC factory for backwards-compatibility reasons - if you want to control when you create new `props`, you should use [`withPropsOnChange`](#withpropsonchange).*
 
 ##### example:
 
@@ -396,9 +398,29 @@ withActionStreams({
 ### `addActionHandlers`
 
 ```js
+addActionHandlers(
+  { [handlerPropName: string]:
+    { type: string,
+      actionCreator: (props: {}, eventArgs: any | any[]) => FluxStandardAction<any>,
+      actionStreamCreator: (sources: {}, event$: Stream<any>) => Stream<FluxStandardAction<any>>,
+      hold?: boolean,
+    }
+  }
+): HigherOrderComponent
 ```
 
-Blah blah blah
+Similar to Redux's `mapDispatchToProps`. `addActionHandlers` does two things:
+
+- merges into the `props` source stream a handler function of the provided `handlerPropName`
+- creates a `action` sink stream that emits an `action` when the handler is invoked.
+
+If you declare the `actionCreator` property, the `actionCreator` function accepts the current `props` and the `eventArg` value passed into the handler (or an array of values if the handler is invoked with multiple arguments) and should return the `action` of the desired `type`.
+
+If you declare the `actionStreamCreator` property, the `actionStreamCreator` function accepts the component's sources and the stream of `eventArgs` emitted when the handler is invoked (again, with a single value or an array values, depending on the number of parameters passed into the handler) and should return a stream of `actions` of the desired `type`.
+
+The `hold` property should be specified as `true` (default is `false`) if the `action` stream should remember it's last `action`.
+
+Useful for imperatively generating actions, most commonly from passing the handlers into a React component.
 
 ##### example:
 
