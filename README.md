@@ -12,8 +12,9 @@ npm install --save remcycle
 <!-- Re-implementation of the Cycle.js [counter](https://github.com/cyclejs/cyclejs/tree/master/examples/counter) example: -->
 
 ```js
-import createComponent from 'remcycle/es2015/createComponent'; // utilities
 import mapProps from 'remcycle/es2015/hoc/mapProps'; // HOCs
+import createComponent from 'remcycle/es2015/createComponent'; // helpers
+import { shallowEquals } from 'remcycle/es2015/util'; // utilities
 ```
 
 ## api
@@ -61,7 +62,7 @@ The following HOC factories and utilities are provided by this library:
   * [`reduxSinksCombiner`](#reduxsinkscombiner)
   * [`shallowEquals`](#shallowequals)
 
-*NOTE: Many HOC factories have two versions, one that exposes `props` and `action`s and another that exposes the raw `props` source stream, `action` streams and component sources - use the latter for more granular control over stream manipulation and creation.*
+*NOTE: A few HOC factories have two versions, one that exposes single `props` or `action` objects and another that exposes the raw `props` source stream, `action` streams and component sources - use the latter for more granular control over stream manipulation and creation.*
 
 ### `mapProps`
 
