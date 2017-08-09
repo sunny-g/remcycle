@@ -603,37 +603,85 @@ Blah blah blah
 ### `reactSinksCombiner`
 
 ```js
+type ReactSink = Stream<ReactElement<any>>;
+
+reactSinksCombiner(
+  view: (...vtrees: ReactElement<any>[], props: {}) => ReactElement<any>,
+  propsSource?: Stream<{}>,
+): (...reactSinks: ReactSink[]) => ReactSink
 ```
 
-Blah blah blah
+Helper for combining the React sinks of multiple sibling components into a single React sink, but can be used as a shorthand to `combine` any set of sinks.
 
 ##### example:
 
 ```js
+import reactSinksCombiner from 'remcycle/es2015/reactSinksCombiner';
+
+function main(sources) {
+  const todoItemOneSinks = TodoItem(sources);
+  const todoItemTwoSinks = TodoItem(sources);
+
+  // props required for the combined React view component
+  const viewProps$ = sources.props.map(({ className }) => ({ className }));
+
+  // the view that combines the vtrees and props
+  const TodoListView = (todoItemOneVtree, todoItemTwoVtree, { className }) =>
+    <div className={className}>
+      {todoItemOneVtree}
+      {todoItemTwoVtree}
+    </div>;
+
+  const mainReactSink = reactSinksCombiner(TodoListView, viewProps$)(todoItemOneSinks.REACT, todoItemTwoSinks.REACT);
+
+  return {
+    REACT: mainReactSink,
+  };
+}
 ```
 
 ### `reduxSinksCombiner`
 
 ```js
+type ReduxSink = Stream<{ [actionType: string]: Stream<FluxStandardAction<any>> }>
+
+reduxSinksCombiner(...reduxSinks: ReduxSink[]): ReduxSink
 ```
 
-Blah blah blah
+Helper for merging the Redux sinks of multiple sibling components into a single Redux sink. If multiple `action` streams of the same `actionType` exist, the streams are merged together.
 
 ##### example:
 
 ```js
+import reduxSinksCombiner from 'remcycle/es2015/reduxSinksCombiner';
+
+function main(sources) {
+  const todoItemOneSinks = TodoItem(sources);
+  const todoItemTwoSinks = TodoItem(sources);
+
+  const mainReduxSink = reduxSinksCombiner(todoItemOneSinks.REDUX, todoItemTwoSinks.REDUX);
+
+  return {
+    REDUX: mainReduxSink,
+  };
+}
 ```
 
 ### `shallowEquals`
 
 ```js
+shallowEquals(any, any): boolean
 ```
 
-Blah blah blah
+Determines if two JS value or reference types are shallowly equal to eachother (using `===`). If an `array` or `object`, strict equality is applied to all elements/properties. Directly exported from the [shallow-equals](https://github.com/hughsk/shallow-equals) library.
 
 ##### example:
 
 ```js
+import { shallowEquals } from 'remcycle/es2015/util';
+
+shallowEquals({ a: 1 }, { a: 1 });  // true
+shallowEquals({ a: 1 }, { b: 1 });  // false
 ```
 
 ## contributing
