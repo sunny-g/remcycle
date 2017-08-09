@@ -40,6 +40,8 @@ The following HOC factories and utilities are provided by this library:
   * [`mapActionStreams`](#mapactionstreams)
   * [`withActions`](#withactions)
   * [`withActionStreams`](#withactionstreams)
+  <!-- * [`mapPropsToActions`](#mappropstoactions) -->
+  <!-- * [`mapPropsToActionStreams`](#mappropstoactionstreams) -->
   <!-- * [`defaultActions`](#defaultactions) -->
   <!-- * [`defaultActionStreams`](#defaultactionstreams) -->
   <!-- * [`mergeActions`](#mergeactions) -->
@@ -199,11 +201,11 @@ withPropsOnChange(
 withState<T>(
   stateName: string,
   initialStateOrCreator: T | (props: {}) => T,
-  actionReducers: {
+  actionReducers?: {
     [actionType: string]:
       (state: T, action: FluxStandardAction<any>, props: {}) => T,
   },
-  propReducers: {
+  propReducers?: {
     [propNames: string | string[]]:
       (state: T, props: {}) => T,
   },
@@ -245,8 +247,10 @@ Merges in a set of `props`, unless they already exist in the `props` source stre
 ##### example:
 
 ```js
+// if parent didn't provide a `value` prop for the <input type="number" /> tag, set it to 0 as a reasonable default
 defaultProps({
-  count: 0, // if parent didn't provide a `count` prop, set it to 0 as a reasonable default
+  type: 'number',
+  value: 0,
 });
 ```
 
@@ -329,7 +333,7 @@ Identical to [`mapActions`](#mapactions), except the `action` stream creator fun
 mapActionStreams({
   'Input/change': (action$, { props: propsSource = of({}) }) => {
     const maxAllowable$ = propsSource.map(({ maxAllowable }) => maxAllowable);
-  
+
     return action$
       .sample((action, maxAllowable) => ([ action, maxAllowable ]), action$, maxAllowable$)
       .filter(([ { payload }, maxAllowable ]) => Number(payload) <= maxAllowable)
@@ -425,78 +429,163 @@ Useful for imperatively generating actions, most commonly from passing the handl
 ##### example:
 
 ```js
-```
-
-### `addActionTypes`
-
-```js
-```
-
-Blah blah blah
-
-##### example:
-
-```js
-```
-
-### `addPropTypes`
-
-```js
-```
-
-Blah blah blah
-
-##### example:
-
-```js
-```
-
-### `logActions`
-
-```js
-```
-
-Blah blah blah
-
-##### example:
-
-```js
-```
-
-### `logProps`
-
-```js
-```
-
-Blah blah blah
-
-##### example:
-
-```js
+// emits `'Input/change'` actions when the `onChange` handler is invoked, perhaps in an <input /> component
+addActionHandlers({
+  onChange: {
+    type: 'Input/change',
+    actionCreator: (_, e) => inputChange(e.target.value),
+  },
+});
 ```
 
 ### `mapView`
 
 ```js
+mapView(
+  viewMapper: (vtree: ReactElement<any>, props: {}) => ReactElement<any>,
+  propsToPluck?: string | string[],
+): HigherOrderComponent
 ```
 
-Blah blah blah
+Wraps a component's React element sink or it's child's React sink with additional React elements.
+
+Optionally, allows you to specify `props` to pluck from the `props` source stream to use for rendering the wrapper component (defaults to `'*'` which then passes all `props` to the `viewMapper`).
 
 ##### example:
 
 ```js
+const Container = ({ childVtree, className }) =>
+  <div className={className}>
+    {childVtree}
+  </div>;
+
+mapView(
+  (vtree, { className }) => Container({ childVtree: vtree, className }),
+  [ 'className' ],
+);
 ```
 
 ### `withCollection`
 
 ```js
+withCollection(
+  collectionName: string,
+  initialCollectionOrCreator: Collection | (sources: {}) => Collection,
+  actionReducers?: {
+    [actionType: string]:
+      (collection: Collection, action: FluxStandardAction<any>, props: {}, sources: {}) => Collection,
+  },
+  propReducers?: {
+    [propNames: string | string[]]:
+      (collection: Collection, props: {}, sources: {}) => Collection,
+  },
+): HigherOrderComponent
 ```
 
-Blah blah blah
+Creates and maintains the state of a [Most.js Collection](https://github.com/motorcyclejs/collection), returning a stream of the collection's state and merging it into the component's sources (so that it can be manipulated in subsequent HOCs).
+
+`initialCollectionOrCreator` is either the initial collection or a function that creates the initial collection from the sources.
+
+`actionReducers` select a `REDUX` source stream using the given `actionType` and on each action, invokes the reducer on the collection, the `action`, the current `props` and all sources.
+
+`propReducers` watch the given `propName(s)` (possibly nested) for changes (using `shallowEquals`) and when changed, invokes the reducer on the collection, current `props` and all sources.
+
 
 ##### example:
 
 ```js
+// manages a collection of children `TodoItem` components and their state
+withCollection('todoItems', Collection(TodoItem), {
+  'TodoList/add': (todos, { payload: text }) => {
+    const props$ = of({ text, isComplete: false });
+
+    return todos.add({ ...sources, props: props$ });
+  },
+  'TodoList/toggleAll': (todos, { payload: allChecked }) => {
+    return Array(todos.size).fill(0)
+      .reduce((newTodos, _, index) => {
+        const todo = todos.getAt(index);
+        const props$ = todo.input.props
+          .map(props => ({ ...props, isComplete: allChecked }));
+
+        return newTodos.setAt(index, { ...todo.input, props: props$ });
+      }, todos);
+  },
+});
+```
+
+### `addActionTypes`
+
+```js
+addActionTypes(
+  componentName: string,
+  { [actionType: string]: PropType }
+): HigherOrderComponent
+```
+
+Augments the Redux `action` sink, performing [prop-type](https://github.com/facebook/prop-types) checks on each `action` payload.
+
+##### example:
+
+```js
+addActionTypes('Input', {
+  'Input/change': PropTypes.string,
+});
+```
+
+### `addPropTypes`
+
+```js
+addPropTypes(
+  componentName: string,
+  { [propName: string]: PropType }
+): HigherOrderComponent
+```
+
+Augments the `props` source stream, performing [prop-type](https://github.com/facebook/prop-types) checks on the `props` object.
+
+##### example:
+
+```js
+addPropTypes('Input', {
+  value: PropTypes.string.isRequired,
+  type: PropTypes.string,
+});
+```
+
+### `logActions`
+
+```js
+logActions(
+  sinkLogger: ({ [actionType: string]: Stream<FluxStandardAction<any>> }) => void,
+  actionLoggers: { [actionType: string]: (<FluxStandardAction<any>) => void },
+): HigherOrderComponent
+```
+
+Takes in an optional `sinksLogger` function which logs all `action` streams in the Redux sink, and an object of logging functions for any given `actionType`.
+
+##### example:
+
+```js
+logActions(::console.log, {
+  'Input/change': ::console.log,
+});
+```
+
+### `logProps`
+
+```js
+logProps(
+  propsLogger: (props: {}) => void,
+): HigherOrderComponent
+```
+
+Logs all `props` from the upstream `props` source stream.
+
+##### example:
+
+```js
+logProps(::console.log);
 ```
 
 ### `createComponent`
