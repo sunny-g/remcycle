@@ -60,7 +60,7 @@ const createSinksMapper = handlers => (REDUX = of({}), sources) => {
             try {
               action = actionCreator(props, eventArgs);
             } catch(e) {
-              console.error('error in `addActionHandlers`', handlerName, 'action creator:', e);
+              console.error('error in `addActionHandlers`', handlerName, '`actionCreator`:', e);
             } finally {
               return action;
             }
