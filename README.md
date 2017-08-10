@@ -592,13 +592,107 @@ logProps(::console.log);
 ### `createComponent`
 
 ```js
+createComponent({
+  main: Component;
+  name?: string;
+  handlers?: Handlers;  // same input as `addActionHandlers`
+  children?: {
+    keys: string;
+    sources: HigherOrderComponent | HigherOrderComponent[];
+    sinks: HigherOrderComponent | HigherOrderComponent[];
+  };
+  wrapper?: HigherOrderComponent;
+  sinks?: HigherOrderComponent | HigherOrderComponent[];
+  sources?: HigherOrderComponent | HigherOrderComponent[];
+  actionTypes?: { [actionType: string]: PropType };
+  propTypes?: { [propName: string]: PropType };
+  isolate?: false | ((Sources: any) => (null | string | {})) | null | string | {};
+}): Component
 ```
 
-Blah blah blah
+A factory function for creating Cycle.js components from a series of HOCs.
+
+Each optional property results in an HOC and is applied in the following order:
+
+ - `main`      : the base component to be wrapped
+ - `handlers`  : React function callbacks to be passed as `props` (usually, only used with `view`) with resultant `action`s emitted
+ - `children`  : object (soon to be array of objects) of HOCs to define what children should be rendered and how their collective state should be maintained
+ - `wrapper`   : HOC defining any low level source or sink transformations required for this component or it's children
+ - `sinks`     : HOC or array of HOCs describing sink transformations
+ - `sources`   : HOC or array of HOCs describing source transformations
+ - `isolate`   : function returning the isolation configuration to be applied to all instances of this component
+
+By applying these HOCs in this order, we get the resulting mental model:
+
+ - main:
+   - main takes in:
+     - most-manipulated sources
+     - least-manipulated sinks
+     - any children components as sources, returns them with sinks
+ - handlers
+   - merges function callbacks into existing `props`
+   - creates and emits raw `actions` (from the `actionCreator` or `actionStreamCreator` function) using the most-complete `props`
+ - children
+   - receives most-manipulated sources
+   - merges/combines its own sinks with least-manipulated sinks
+ - wrapper
+   - performs any last-minute source manipulation for `main` and/or `children`
+   - provides lowest-level interface for sink manipulation
+ - sinks
+   - performs manipulation of sinks with sources available from source HOCs
+ - sources
+   - performs manipulation of sources passed in from the parent components
 
 ##### example:
 
+Say we want to wrap the great [react-select](https://github.com/JedWatson/react-select) `Select` component...
+
 ```js
+import React from 'react';
+import createComponent from 'remcycle/es2015/createComponent';
+import { fromReactDOMComponent } from '@sunny-g/cycle-react-driver/es2015/dom';
+
+const main = fromReactDOMComponent(Select, 'REACT');  // maps props to a React sink named 'REACT'
+
+export default createComponent({
+  name: 'Select',                           // used for prop-type reporting
+  main: ,                                   // can be any Cycle component, but creating one from a React component
+  isolate: () => Math.random().toString(),  // isolation with a random scope
+  handlers: {
+    onChange: {                             // necessary prop for receiving current selection
+      type: 'Select/change',
+      actionCreator: (_, selection) => ({
+        type: 'Select/change',
+        payload: selection,
+        error: false,
+        meta: {},
+      }),
+    },
+  },
+  sources: [
+    defaultProps({                          // provides some react-select defaults
+      defaultValue: '',
+      multi: false,
+      name: 'Select',
+    }),
+
+    // manages state of the react-select component's `value`
+    withState('value', ({ defaultValue }) => defaultValue || null, {
+      'Select/change': (_, selection) => selection,
+    }),
+  ],
+  sinks: [],                                // no need to manipulate sinks
+  propTypes: {                              // we can define expected `props` to be included in the `props` source
+    multi: PropTypes.bool,
+    name: PropTypes.string,
+  },
+  actionTypes: {                            // likewise, we can document the payload types of the `action`s this component emits
+    'Select/change': PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.arrayOf(PropTypes.string),
+    ]),
+  },
+});
 ```
 
 ### `reactSinksCombiner`
