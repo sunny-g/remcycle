@@ -49,9 +49,9 @@ const baseChildrenHOC = _keys => BaseComponent => _sources => {
  * Each property results in an HOC and is applied in the following order:
  *  - name      : name of the created component
  *  - main      : the base component to be wrapped
- *  - handlers  : React function callbacks to be passed as props (usually, only used with `view`)
+ *  - handlers  : React function callbacks to be passed as `props` (usually, only used with `view`) with resultant `action`s emitted
  *  - children  : object (soon to be array of objects) of HOCs to define what children should be rendered and how their collective state should be maintained
- *  - wrapper   : HOC defining any low level functionality required for this component or it's children
+ *  - wrapper   : HOC defining any low level source or sink transformations required for this component or it's children
  *  - sinks     : HOC or array of HOCs describing sink transformations
  *  - sources   : HOC or array of HOCs describing source transformations
  *  - isolate   : function returning the isolation configuration to be applied to all instances of this component
@@ -61,10 +61,11 @@ const baseChildrenHOC = _keys => BaseComponent => _sources => {
  *    - main takes in:
  *      - most-manipulated sources
  *      - least-manipulated sinks
- *      - any children components
+ *      - any children components as sources, returns them with sinks
+ - handlers
  *  - handlers
- *    - takes in all non-callback props, adds function callbacks as props
- *    - emits least-manipulated actions using the most-complete props available
+ *    - merges function callbacks into existing `props`
+ *    - creates and emits raw `actions` (from the `actionCreator` or `actionStreamCreator` function) using the most-complete `props`
  *  - children
  *    - receives most-manipulated sources
  *    - merges/combines its own sinks with least-manipulated sinks
@@ -72,7 +73,7 @@ const baseChildrenHOC = _keys => BaseComponent => _sources => {
  *    - performs any last-minute source manipulation for `main` and/or `children`
  *    - provides lowest-level interface for sink manipulation
  *  - sinks
- *    - performs manipulation of sinks with sources available from source manipulations
+ *    - performs manipulation of sinks with sources available from source HOCs
  *  - sources
  *    - performs manipulation of sources passed in from the parent components
  */
@@ -107,8 +108,8 @@ const createComponent: CreateComponent = options => {
   const childrenHOC = (children === defaultChildren) ?
     identity :
     compose(
-      compose(...([].concat(children.sources))),
-      pipe(...([].concat(children.sinks))),
+      compose(...([].concat(children.sources || identity))),
+      pipe(...([].concat(children.sinks || identity))),
       baseChildrenHOC(children.keys),
     );
   const handlersHOC = handlers ?
