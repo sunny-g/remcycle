@@ -54,14 +54,14 @@ const withPropsOnChange: WithPropsOnChange = (namesOrPredicate, propsCreator) =>
           return newProps;
         }
       }, watchedProps$, propsSource)
-      .map(mappedProps => {
-        return (mappedProps !== undefined && mappedProps !== null) ? mappedProps : {}
+      .map(newProps => {
+        return (newProps !== undefined && newProps !== null) ? newProps : {}
       })
       .skipRepeatsWith(shallowEquals);
 
     return propsSource
-      .sample((props, mappedProps) => ({
-        ...props, ...mappedProps,
+      .sample((props, newProps) => ({
+        ...props, ...newProps,
       }), propsSource, mappedProps$);
   });
 
