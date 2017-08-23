@@ -41,6 +41,7 @@ The following HOC factories and utilities are provided by this library:
   * [`mapActionStreams`](#mapactionstreams)
   * [`withActions`](#withactions)
   * [`withActionStreams`](#withactionstreams)
+  * [`mapSourcesToActionStreams`](#mapsourcestoactionstreams)
   <!-- * [`mapPropsToActions`](#mappropstoactions) -->
   <!-- * [`mapPropsToActionStreams`](#mappropstoactionstreams) -->
   <!-- * [`defaultActions`](#defaultactions) -->
@@ -398,6 +399,30 @@ withActionStreams({
   },
 });
 
+```
+
+### `mapSourcesToActionStreams`
+
+```js
+mapSourcesToActionStreams(
+  { [actionType: string]: (sources: {}): ActionStream<any>; }
+): HigherOrderComponent
+```
+
+Helper for mapping sources to new (or merge into existing) `action` streams.
+
+##### example:
+
+```js
+// in event-sourcing parlance, we can map state changes to domain events
+mapSourcesToActionStreams({
+  [INPUT_CHANGED]: ({ props: propsSource }) => {
+    return propsSource
+      .map(props => props['input'])
+      .map(inputChangedActionCreator)
+      .multicast();
+  },
+});
 ```
 
 ### `addActionHandlers`
