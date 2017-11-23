@@ -22,7 +22,11 @@ const withActionStreams: WithActionStreams = mappers => mapSinksWithSources(
           .keys(mappers)
           .reduce((newAction$s, listenedActionType) => {
             const mapperObj = mappers[listenedActionType];
-            const action$ = action$s[listenedActionType];
+            const action$ = action$s[listenedActionType] || empty();
+
+            if (action$s[listenedActionType] === undefined) {
+              console.error('error in `withActionStreams`:', `\`${listenedActionType}\``, 'stream does not exist');
+            }
 
             return {
               ...newAction$s,
