@@ -24,10 +24,6 @@ const withActions: WithActions = mappers => mapSinksWithSources(
             const mapperObj = mappers[listenedActionType];
             const action$ = action$s[listenedActionType] || empty();
 
-            if (action$s[listenedActionType] === undefined) {
-              console.error('error in `withActions`:', `\`${listenedActionType}\``, 'stream does not exist');
-            }
-
             return {
               ...newAction$s,
               ...mapObj((actionCreator, emittedActionType) => {

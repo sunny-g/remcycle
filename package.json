@@ -1,6 +1,6 @@
 {
   "name": "remcycle",
-  "version": "0.2.19",
+  "version": "0.2.20",
   "description": "a Cycle.js-based component factory and set of higher-order-components built on cycle-react-driver, cycle-redux-driver, and most",
   "author": "Sunny G <sunny.gonna@gmail.com> (http://blog.sunnyg.io)",
   "homepage": "https://github.com/sunny-g/remcycle",
@@ -70,8 +70,8 @@
     "@sunny-g/cycle-react-driver": "^0.4.11",
     "@sunny-g/cycle-redux-driver": "^0.1.17",
     "@sunny-g/cycle-utils": "^0.2.0",
-    "@types/node": "^6.0.69",
-    "@types/react": "^15.0.21",
+    "@types/node": "^6.0.90",
+    "@types/react": "^15.6.6",
     "@types/react-dom": "^0.14.23",
     "immutable": "^3.8.1",
     "most": "^1.2.2",
@@ -91,8 +91,8 @@
     "jest-cli": "^20.0.0",
     "most-proxy": "^3.3.0",
     "ts-jest": "^19.0.1",
-    "ts-loader": "^2.0.1",
-    "typescript": "^2.3.0",
+    "ts-loader": "^2.3.7",
+    "typescript": "^2.6.1",
     "webpack": "^2.4.5"
   },
   "peerDependencies": {
