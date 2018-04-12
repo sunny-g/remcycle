@@ -81,10 +81,12 @@ const withState: WithState = (propName, initialState, actionReducers, propReduce
 
       const state$ = (typeof initialState === 'function')
         ? (function() {
+          let initialized = 0;
           const defaultState = Symbol('=== default withState state ===');
           const initialStateReducer$ = propsSource
-            .take(1)
+            .take(2)
             .map(props => _ => {
+              initialized += 1;
               let firstState = props[propName];
 
               try {
@@ -94,10 +96,11 @@ const withState: WithState = (propName, initialState, actionReducers, propReduce
               } finally {
                 return firstState;
               }
-            });
+            })
+            .filter(_ => initialized === 1);
 
           return initialStateReducer$
-            .concat(reducer$)
+            .merge(reducer$)
             .scan((state, reducer: (any: any) => any) => reducer(state), defaultState)
             .filter(state => state !== defaultState);
         })()
